@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Casual Oral · Flashcards</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#F5F2EA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="口语卡">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<script>
+if("serviceWorker" in navigator){
+  addEventListener("load",function(){ navigator.serviceWorker.register("./sw.js").catch(function(){}); });
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F2EA; --ink:#1C1D1F; --ink-soft:#6D6B65;
+  --seal:#C03A22; --jade:#2C7A57; --card:#FFFFFF; --line:#E2DCCF; --gold:#C9A227; --r:22px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{background:var(--paper);color:var(--ink);font-family:'Noto Sans SC',-apple-system,sans-serif;
+  display:flex;flex-direction:column;max-width:540px;margin:0 auto;height:100vh;height:100dvh;
+  padding:12px 16px calc(10px + env(safe-area-inset-bottom));user-select:none;-webkit-user-select:none}
+button{font-family:inherit;cursor:pointer}
+header{display:flex;align-items:center;gap:8px}
+h1{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;flex:1;line-height:1.15}
+h1 em{font-style:normal;color:var(--seal)}
+h1 small{display:block;font-family:'Noto Sans SC',sans-serif;font-weight:400;font-size:.6rem;color:var(--ink-soft);letter-spacing:.02em}
+.icon-btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:6px 10px;font-size:.75rem;color:var(--ink)}
+.icon-btn b{color:var(--gold)}
+select{font-family:inherit;font-size:.72rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;max-width:46%}
+.row{display:flex;gap:7px;margin-top:9px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;font-size:.72rem;padding:5px 11px;color:var(--ink-soft)}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.bar{height:4px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;width:0;background:var(--jade);transition:width .2s}
+.stats{display:flex;justify-content:space-between;font-size:.7rem;color:var(--ink-soft);margin-top:5px}
+.stats b.ok{color:var(--jade)}.stats b.st{color:var(--gold)}
+.deck{position:relative;flex:1;min-height:0;margin:12px 0}
+.cw{position:absolute;inset:0;touch-action:none;transition:transform .28s cubic-bezier(.2,.8,.3,1),opacity .28s}
+.cw.drag{transition:none}
+.cw.out-l{transform:translateX(-120%) rotate(-8deg);opacity:0}
+.cw.out-r{transform:translateX(120%) rotate(8deg);opacity:0}
+.cw.in-l{transform:translateX(-120%) rotate(-8deg);opacity:0}
+.cw.in-r{transform:translateX(120%) rotate(8deg);opacity:0}
+.card{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.3,.9,.3,1)}
+.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:var(--r);backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--card);border:1px solid var(--line);box-shadow:0 10px 26px rgba(28,29,31,.09);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;padding:58px 26px;text-align:center}
+.face.back{transform:rotateY(180deg)}
+.chip{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;align-items:center;font-size:.62rem}
+.chip .sub{color:var(--seal);border:1.4px solid var(--seal);border-radius:6px;padding:3px 7px;transform:rotate(-2deg);max-width:70%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip .side{color:var(--ink-soft);letter-spacing:.12em}
+.en{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem;line-height:1.32}
+.zh{font-weight:500;font-size:1.42rem;line-height:1.5}
+.mark{position:absolute;bottom:36px;font-size:.8rem;letter-spacing:2px;color:var(--gold)}
+.mark.known{color:var(--jade);letter-spacing:0;font-size:.72rem;border:1.4px solid var(--jade);border-radius:6px;padding:2px 8px}
+.hint{position:absolute;bottom:14px;left:0;right:0;font-size:.65rem;color:var(--ink-soft)}
+.nav{position:absolute;top:50%;transform:translateY(-50%);font-size:1.4rem;color:var(--ink-soft);opacity:0;transition:opacity .12s;pointer-events:none}
+.nav.l{left:16px}.nav.r{right:16px}
+.ctrls{display:flex;justify-content:center;align-items:center;gap:22px}
+.ctrl{width:60px;height:60px;border-radius:50%;border:1.5px solid var(--line);background:var(--card);
+  font-size:1.4rem;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(28,29,31,.07);transition:transform .1s}
+.ctrl:active{transform:scale(.9)}
+.ctrl.small{width:46px;height:46px;font-size:1rem;color:var(--ink-soft)}
+.ctrl.st{color:var(--gold)}.ctrl.ok{color:var(--jade)}
+.end{position:absolute;inset:0;border-radius:var(--r);background:var(--card);border:1px solid var(--line);
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:30px;text-align:center}
+.end.show{display:flex}
+.end .seal{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--jade);border:3px solid var(--jade);border-radius:10px;padding:6px 15px;transform:rotate(-5deg)}
+.end h2{font-family:'Fraunces',serif;font-size:1.35rem}
+.end p{font-size:.83rem;color:var(--ink-soft);line-height:1.6}
+.pill{border:none;background:var(--ink);color:var(--paper);border-radius:999px;padding:10px 20px;font-size:.82rem}
+.pill.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.sheet{position:fixed;inset:0;background:rgba(28,29,31,.35);display:none;z-index:20}
+.sheet.show{display:block}
+.sheet-inner{position:absolute;left:0;right:0;bottom:0;max-width:540px;margin:0 auto;height:88%;
+  background:var(--paper);border-radius:22px 22px 0 0;display:flex;flex-direction:column;
+  padding:16px 16px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(0,0,0,.18)}
+.sheet-head{display:flex;align-items:center;gap:10px}
+.sheet-head h2{font-family:'Fraunces',serif;font-size:1.1rem;flex:1}
+.wb-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:10px}
+.wb-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
+.wb-text{flex:1;min-width:0}
+.wb-text .e{font-family:'Fraunces',serif;font-weight:600;font-size:.92rem}
+.wb-text .z{font-size:.82rem;color:var(--ink-soft);margin-top:2px}
+.wb-stars{color:var(--gold);font-size:.78rem;letter-spacing:1px;white-space:nowrap}
+.wb-x{border:none;background:none;color:var(--ink-soft);font-size:1rem;padding:4px 2px}
+.wb-empty{text-align:center;color:var(--ink-soft);font-size:.85rem;padding:40px 20px;line-height:1.8}
+.sheet-foot{display:flex;gap:8px;padding-top:10px}
+.sheet-foot .pill{flex:1;text-align:center}
+@media (prefers-reduced-motion:reduce){.card,.cw,.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Casual oral <em>0711</em><small id="stamp"></small></h1>
+  <button class="icon-btn" id="wbBtn">★ <b id="wbCount">0</b></button>
+</header>
+
+<div class="row">
+  <div class="seg" id="modeSeg">
+    <button data-mode="mix" class="on">随机</button>
+    <button data-mode="en">EN→中</button>
+    <button data-mode="zh">中→EN</button>
+  </div>
+  <select id="catSel"></select>
+</div>
+
+<div class="bar"><i id="fill"></i></div>
+<div class="stats">
+  <span id="posTxt">0 / 0</span>
+  <span><b class="ok" id="okN">0</b> 熟 · <b class="st" id="stN">0</b> 星</span>
+</div>
+
+<div class="deck" id="deck">
+  <div class="end" id="end">
+    <div class="seal">完</div>
+    <h2 id="endTitle">这一轮结束</h2>
+    <p id="endTxt"></p>
+    <button class="pill" id="againBtn">重新洗牌</button>
+    <button class="pill alt" id="studyStarBtn">只练星标词</button>
+  </div>
+</div>
+
+<div class="ctrls">
+  <button class="ctrl st" id="starBtn" title="不熟，加一颗星">✕</button>
+  <button class="ctrl small" id="flipBtn" title="翻面">⇄</button>
+  <button class="ctrl ok" id="okBtn" title="很熟，暂时不再出现">✓</button>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">生词本</h2>
+      <div class="seg" id="wbSeg">
+        <button data-tab="star" class="on">生词</button>
+        <button data-tab="known">熟词</button>
+      </div>
+      <button class="icon-btn" id="closeSheet">关闭</button>
+    </div>
+    <div class="stats"><span id="wbSummary"></span></div>
+    <div class="wb-list" id="wbList"></div>
+    <div class="sheet-foot">
+      <button class="pill" id="wbStudy">练这些词</button>
+      <button class="pill alt" id="wbClear">清空</button>
+    </div>
+  </div>
+</div>
+
+<script>
+addEventListener("error",function(ev){
+  const d=document.getElementById("deck");
+  if(d) d.innerHTML='<div class="end show" style="display:flex"><h2>出错了</h2><p style="word-break:break-word">'
+    +(ev.message||ev.error||"unknown")+'</p><p>把这段话发给 Claude 就能定位问题。</p></div>';
+});
+
+const BUILT = "2026-07-25";
+const DATA = [{"en": "Affectionate", "zh": "亲切的 affactionate send-off 热情的欢送 ; take affactionate leave of her mom 亲切的告别", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Unpretentious", "zh": "不做作", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Chuffed", "zh": "happy 高兴的", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Be cathartic", "zh": "有宣泄 / 疗愈感的", "sec": "To describe", "sub": "People — positive traits"}, {"en": "A real catch", "zh": "香饽饽，很优秀的人", "sec": "To describe", "sub": "People — positive traits"}, {"en": "A Good Samaritan", "zh": "乐善好施者，老好人", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Swiss Army knife", "zh": "瑞士军刀，形容人是多面手", "sec": "To describe", "sub": "People — positive traits"}, {"en": "He is jacked / bodybuilder", "zh": "健美，精壮", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Drop-dead gorgeous", "zh": "美死了", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Diva", "zh": "天后", "sec": "To describe", "sub": "People — positive traits"}, {"en": "Femme fatale", "zh": "蛇蝎美人 [fem-fe-tail]", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Minx", "zh": "an attractive and playful woman（含调皮/挑逗意）", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Glib / he has the gift of glib", "zh": "花言巧语，油嘴滑舌（会说但不真诚）", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Narcissist", "zh": "自恋者", "sec": "To describe", "sub": "People — negative traits"}, {"en": "A self-promoter", "zh": "自吹自擂者", "sec": "To describe", "sub": "People — negative traits"}, {"en": "To be self-righteous", "zh": "自以为是者", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Lazy bum", "zh": "懒虫", "sec": "To describe", "sub": "People — negative traits"}, {"en": "A buck-head / good-for-nothing / loser", "zh": "草包", "sec": "To describe", "sub": "People — negative traits"}, {"en": "A shill (planted by the store)", "zh": "托儿", "sec": "To describe", "sub": "People — negative traits"}, {"en": "A breadcrumber", "zh": "钓鱼者（吊着别人）", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Fat cat", "zh": "权贵", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Vultures", "zh": "秃鹫，榨干别人利益的人", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Being paranoid", "zh": "疑神疑鬼", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Being a fruitcake / as nutty as a fruitcake", "zh": "疯子 / 蠢货", "sec": "To describe", "sub": "People — negative traits"}, {"en": "You're such a marshmallow", "zh": "软弱脆弱的人", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Have a wandering eye", "zh": "色眯眯", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Possessiveness", "zh": "占有欲", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Have a lust for power / blood / wealth", "zh": "渴望权力", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Low vibration people", "zh": "负能量者（they can drown you）", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Book smart & street smart", "zh": "小聪明 / 大聪明（书本 vs 街头）", "sec": "To describe", "sub": "People — negative traits"}, {"en": "Being a dinosaur", "zh": "old fashioned, 老派", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Outcast", "zh": "局外人", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Emotional, feminine, hysterical", "zh": "情绪化的 / 女性化的 / 歇斯底里的", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Formidable", "zh": "scary，令人生畏", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Wishy-washy", "zh": "优柔寡断（人）/ 多变（天气）", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Whimsical", "zh": "异想天开的，随性的", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Weird quirk", "zh": "怪癖", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Impromptu", "zh": "即兴的", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Telepath / telepathic", "zh": "心灵感应的", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "I'm not in his league", "zh": "不是一个档次的（比不上）", "sec": "To describe", "sub": "People — type / neutral labels"}, {"en": "Have a hump / to slouch", "zh": "驼背 / 懒散地走", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "To get jacked", "zh": "变得精壮", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "Keep my feet on the ground", "zh": "脚踏实地", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "I'm not trying to be brolic", "zh": "兄贵（肌肉过头）", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "With my physique", "zh": "以我的体型", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "Revealing attire / the dress is too revealing", "zh": "暴露的着装", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "Gaudy attire", "zh": "花哨俗气的着装", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "I like the pomp", "zh": "排场", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "Too corporate / it's giving too corporate vibes", "zh": "班味太重", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "It's so pigmented", "zh": "染色 / 颜色太重了", "sec": "To describe", "sub": "Body, posture, looks"}, {"en": "Epic (music)", "zh": "壮观的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Phenomenal", "zh": "绝了", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Cutting edge / state of the art", "zh": "最前沿科技", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "A disruptive / groundbreaking conclusion", "zh": "颠覆性结论", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "The most disruptive algorithm", "zh": "最具革新性的算法", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Fancy-schmancy", "zh": "very fancy 非常花哨高档", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Harrowing", "zh": "令人痛心的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Soul crashing", "zh": "让人崩溃的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "It's a shocker", "zh": "骇人听闻", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "A cascade of problems", "zh": "接连不断的问题", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "A convoluted sentence / story", "zh": "错综复杂，冗长晦涩", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Counterintuitive", "zh": "反直觉的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Attenuated transition", "zh": "缓慢的过渡", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "A push-pull", "zh": "拉扯 / 一来一回", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "To bounce back and forth", "zh": "反反复复的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "That's atypical", "zh": "不典型，不常见", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Flabby (muscle / economy)", "zh": "松弛的，不强健的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Pasty", "zh": "黏糊状的 / 面色苍白的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Parched (soil / land)", "zh": "干涸的", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Trace amounts / trace elements", "zh": "微量的 / 微量元素", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Statistical fluke / seasonal fluke", "zh": "偶然现象", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Spectacular but hostile", "zh": "壮丽却充满敌意", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "They don't experience seasonal extremes", "zh": "冬无严寒夏无酷暑", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "A hands-off approach / supervisor", "zh": "放养模式", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "It doesn't rip / a rip", "zh": "不易撕裂 / 一个口子", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Uncooperative (my phone can be uncooperative)", "zh": "不配合", "sec": "To describe", "sub": "Qualities of things / situations"}, {"en": "Go for it! / keep it up / you got this!", "zh": "加油", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "You know your stuff", "zh": "你是行家", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "You have a mouth in you", "zh": "你口才真好", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "Command what you say", "zh": "掷地有声", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "Nobody starts off exceptional at something", "zh": "没有人一开始就出类拔萃", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "Your work speaks for itself", "zh": "你的工作本身说明了一切", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "That's what I'm talking about", "zh": "就是这样！", "sec": "Positive expressions", "sub": "Praise & encouragement"}, {"en": "To see the silver lining", "zh": "看到曙光", "sec": "Positive expressions", "sub": "Optimism / silver lining"}, {"en": "A silver lining", "zh": "不幸中的万幸", "sec": "Positive expressions", "sub": "Optimism / silver lining"}, {"en": "It could be a blessing in disguise", "zh": "因祸得福", "sec": "Positive expressions", "sub": "Optimism / silver lining"}, {"en": "Quit beating yourself up", "zh": "不要折磨自己了", "sec": "Positive expressions", "sub": "Optimism / silver lining"}, {"en": "An eye-opener (for me)", "zh": "让我大开眼界", "sec": "Positive expressions", "sub": "Optimism / silver lining"}, {"en": "To branch out", "zh": "拓展新领域", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "Think out of the box", "zh": "跳出框架", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "To see around corners", "zh": "未雨绸缪，预判拐点", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "Muster up one's courage / energy", "zh": "鼓起勇气", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "Gear oneself up", "zh": "准备好自己", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "To start with a clean slate", "zh": "不计过往，重新开始", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "Let your hair down", "zh": "放松自在", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "To go smoothly / swimmingly", "zh": "顺利，丝滑", "sec": "Positive expressions", "sub": "Growth & mindset"}, {"en": "To reconcile with sb", "zh": "与某人和好", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "Meet me halfway there", "zh": "各退一步", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "Defer to your expertise", "zh": "尊重你的专业", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "That's something I can work with", "zh": "我能接受的结果", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "It's well intentioned", "zh": "我是好心", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "I really feel for you", "zh": "我理解你的心情", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "We go back a long time", "zh": "我们是老相识了", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "The cherry on the top", "zh": "画龙点睛，最好的一件事", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "A … and a half (e.g. a meal and a half)", "zh": "超乎预期的某物", "sec": "Positive expressions", "sub": "Agreement, acceptance, reconciliation"}, {"en": "It's all great catching up with you. I'll see you later.", "zh": "聊得很开心，回头见", "sec": "Positive expressions", "sub": "Closing / warm sign-offs"}, {"en": "I'm really glad we bumped into each other.", "zh": "很高兴偶遇你", "sec": "Positive expressions", "sub": "Closing / warm sign-offs"}, {"en": "Let's keep the conversation open", "zh": "咱之后再继续唠", "sec": "Positive expressions", "sub": "Closing / warm sign-offs"}, {"en": "Yeah, totally! / I couldn't agree more", "zh": "完全同意", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "We're totally on the same page!", "zh": "想到一块儿去了", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "That makes a lot of sense", "zh": "很有道理", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "I see what you mean / I hear you on that", "zh": "我懂你的意思", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "That's an interesting point!", "zh": "有意思的观点", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "Good point! I haven't considered that before", "zh": "好角度，我之前没想到", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "Well, that's an interesting question…", "zh": "这问题挺有意思", "sec": "Positive expressions", "sub": "Small-talk: agreement & active listening"}, {"en": "Doing well, thanks! How about you?", "zh": "挺好的，你呢", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Pretty good! Just trying to get through the day", "zh": "还行，就想熬过今天", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Not bad! Just looking forward to the weekend", "zh": "还行，就盼着周末", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Good! Had a busy morning, but can't complain", "zh": "上午挺忙，但不能抱怨", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Busy, but nothing I can't handle", "zh": "忙，但应付得来", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Working on a project that's keeping me on my toes", "zh": "让我时刻紧张的项目", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "It's one of those days where coffee is my best friend", "zh": "全靠咖啡撑着的一天", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Probably catching up on sleep!", "zh": "大概补个觉", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Can't wait to just relax for a bit", "zh": "就想歇会儿", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Sounds like a hectic schedule", "zh": "听起来行程很满", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Sounds like you've been stretched pretty thin", "zh": "听起来你被工作学习搞得很累", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Take care and stay strong / Keep at it!", "zh": "保重，加油", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Hopefully things will calm down soon", "zh": "希望很快能缓下来", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "It's good to keep the ball rolling", "zh": "保持势头挺好", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "Sounds like you're in the final stretch already. Almost there!", "zh": "最后冲刺阶段了", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "I'll be rooting for you", "zh": "我为你加油", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "One last stretch, and you can escape from this!", "zh": "再撑一下就解脱了", "sec": "Positive expressions", "sub": "Small-talk: warm responses & encouragement"}, {"en": "To win over sb", "zh": "讨某人芳心 / 赢得好感", "sec": "Positive expressions", "sub": "Building connection"}, {"en": "To smile benevolently", "zh": "仁慈地微笑", "sec": "Positive expressions", "sub": "Building connection"}, {"en": "A lot of people can relate to…", "zh": "很多人能共情", "sec": "Positive expressions", "sub": "Building connection"}, {"en": "I appreciate the suggestion", "zh": "谢谢你的建议", "sec": "Positive expressions", "sub": "Building connection"}, {"en": "I know I have been less than kind to you", "zh": "我知道我对你不太好（承认错误）", "sec": "Positive expressions", "sub": "Building connection"}, {"en": "We'll see about that / Just you wait!", "zh": "走着瞧吧", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "We don't mess around!", "zh": "我们可不好惹", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Oh, bite me!", "zh": "少来这套", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Are you trying to stir things up? What's your problem?", "zh": "你是不是想找事儿？", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To stir shit", "zh": "搅屎棍", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To speak with menace / be menacing", "zh": "威胁", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To gang up on someone", "zh": "一群人欺负一个", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "They are in your face", "zh": "故意和你叫板", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To get to sb / it gets to me", "zh": "惹到，让我不爽", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Step on one's toe / get on one's nerve", "zh": "惹到，冒犯到", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To get back on sb", "zh": "报仇", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "He's really forcing my hand", "zh": "把我逼到这种程度", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To ice you out", "zh": "排挤", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "This is so typical of you", "zh": "你总这样", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Speak for yourself", "zh": "那是你，别带上我", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Like you know", "zh": "你懂个毛", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "You wish / nice try / not a chance", "zh": "想得美", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "Get over yourself. Don't flatter yourself", "zh": "别把自己太当回事", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "You're being sarcastic", "zh": "讽刺", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To lecture me", "zh": "说教", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "You only make things worse", "zh": "你只会把事情搞得更糟", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To throw you on the field like a ragdoll", "zh": "像扔布娃娃一样把你甩出去", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To barge through the crowd / to barge into my life", "zh": "横冲直撞 / 闯进我的生活", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To cringe for sb", "zh": "替某人尴尬", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "There's a lesson but you're not grasping it", "zh": "你没领悟到", "sec": "Negative expressions", "sub": "Confrontation, comebacks, provocation"}, {"en": "To set me up", "zh": "构陷我", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Trump up", "zh": "胡编", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Solicitation", "zh": "教唆", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To demonize sth", "zh": "妖魔化", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Muddy the waters", "zh": "混淆视听", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To beat around the bush / quit beating around the bush!", "zh": "说话兜圈子 / 别拐弯抹角了", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Raise eyebrows over sb", "zh": "引起怀疑", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Don't fall for it", "zh": "别被骗了", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Bluff / bravado / an empty threat", "zh": "虚张声势", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Empty promises / pie in the sky", "zh": "画饼", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "A rage bait / to rage bait someone", "zh": "拉仇恨", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To sugarcoat it", "zh": "难听的话包装", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Name-calling, gaslighting, stonewalling, over-generalizing", "zh": "语言暴力 / 煤气灯 / 冷暴力 / 以偏概全", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "Play a little hard to get", "zh": "欲擒故纵", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To weaponize the joyful words", "zh": "把好话曲解成攻击，污名化", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To kiss up to you", "zh": "拍马屁", "sec": "Negative expressions", "sub": "Deception, manipulation, framing"}, {"en": "To sit on one's hands", "zh": "do nothing, 无所作为", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "To refuse to play ball", "zh": "不肯配合", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "To go through the motions and get the job done", "zh": "敷衍了事", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "Brush me off", "zh": "敷衍我", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "To faff around", "zh": "瞎忙活，小题大做", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "Cave in", "zh": "屈服", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "To be led by the nose", "zh": "被牵着鼻子走", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "Bail on someone / to blow off sb", "zh": "放鸽子 / 翘掉", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "Leave me on read", "zh": "已读不回", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "Cannot hack it", "zh": "应付不来", "sec": "Negative expressions", "sub": "Laziness, avoidance, going through motions"}, {"en": "To nag / she thinks I nag too much", "zh": "唠叨 / 嫌我唠叨", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "To grumble over the food", "zh": "对某事发牢骚", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "To rant about", "zh": "痛骂，怒喷", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Stop offering unsolicited advice!", "zh": "没人问你的意见", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Talking gibberish", "zh": "莫名其妙的话", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "To talk out of one's ass", "zh": "说蠢话", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Don't be a drag", "zh": "别当扫兴的人", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Don't get me started / don't even ask", "zh": "可别提了", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Don't be a jinx / don't jinx things", "zh": "别乌鸦嘴", "sec": "Negative expressions", "sub": "Complaining, nagging, ranting"}, {"en": "Things go downhill", "zh": "事情恶化", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "The conditions flared up", "zh": "变严重", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "To spiral out of control", "zh": "失控", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "Be off the rails", "zh": "失控", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "The last straw / to deal the killing blow", "zh": "压死骆驼的最后一根稻草", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "To hit a snag / bottleneck", "zh": "瓶颈", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "The weather rears its ugly head", "zh": "卷土重来", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "The movie didn't live up to its reputation", "zh": "名不副实", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "Not too keen on it", "zh": "不太喜欢", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "Feeling pooped", "zh": "exhausted，累瘫", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "To suffer torments", "zh": "忍受折磨", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "It's a minefield", "zh": "雷区", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "It's so degrading!", "zh": "太掉价", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "Muck it up / cocked up", "zh": "搞砸了", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "It kills me that you don't like me", "zh": "你不喜欢我，我很难受", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "To be iced out", "zh": "被冷落", "sec": "Negative expressions", "sub": "Decline, disappointment, things worsening"}, {"en": "You have a mouth like a sailor's", "zh": "讲话粗鲁", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "You're the worst critic to yourself", "zh": "你对自己太狠了", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "You're doing a number on yourself", "zh": "你对自己真够狠的", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "Rub it in / put salt on an open wound", "zh": "伤口撒盐", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "To put sb on blast", "zh": "挂人，公开指责", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "Being coerced into a confession", "zh": "屈打成招", "sec": "Negative expressions", "sub": "Insults, crude comebacks"}, {"en": "Don't be such a cheapskate! You're so stingy", "zh": "太小气了", "sec": "Negative expressions", "sub": "Money & stinginess"}, {"en": "That's so petty", "zh": "小心眼儿", "sec": "Negative expressions", "sub": "Money & stinginess"}, {"en": "Price gouging", "zh": "坐地起价", "sec": "Negative expressions", "sub": "Money & stinginess"}, {"en": "Make a profit out of poor people", "zh": "从穷人身上赚钱", "sec": "Negative expressions", "sub": "Money & stinginess"}, {"en": "Money pit", "zh": "销金窟", "sec": "Negative expressions", "sub": "Money & stinginess"}, {"en": "On top of that", "zh": "in addition，此外", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "By way of…", "zh": "作为…（表例外 / 对比）", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "In this scenario", "zh": "在这种情况下", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "Are grounded to xxx", "zh": "以xxx为基础", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "Set a higher threshold on", "zh": "设更高门槛", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "To circle back to", "zh": "话说回来", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "But on a second thought", "zh": "但转念一想", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "That being said, a few things are problematic", "zh": "尽管如此还是有些问题", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "If you put it that way", "zh": "这样想的话", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "But I digress", "zh": "离题了", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "Go off on a little tangent", "zh": "稍微离题一下", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "Speaking of that, have you ever…?", "zh": "说到这个，你有没有…", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "That actually reminds me of something…", "zh": "这倒让我想起…", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "Going back to what you said earlier about…", "zh": "回到你刚说的…", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "By the way, on a different note…", "zh": "顺便说，换个话题", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "But in my defense…", "zh": "容我解释一下", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "I can see it heading that way", "zh": "我能看出来会往那个方向走", "sec": "Neutral expressions", "sub": "Discourse connectors & fillers"}, {"en": "I'm drawing a blank", "zh": "我想不起来", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "I lost my point / my train of thought", "zh": "思绪断了", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "It just struck me that…", "zh": "我突然想起", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "I was about to say", "zh": "我本来想说", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Put my thinking cap on", "zh": "开始思考", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Land the plane", "zh": "长话短说", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Put a finger on it", "zh": "say sth for sure，说准", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "To voice your opinion", "zh": "表达观点", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "To distill from xxx", "zh": "提炼、去芜存菁", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Ah, I see / that makes sense / that explains it", "zh": "这样啊", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Learn on the fly / to do sth on the fly", "zh": "边做边学 / 随机应变", "sec": "Neutral expressions", "sub": "Thinking, memory & speech management"}, {"en": "Here's the deal", "zh": "listen to me，听我说", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "To my knowledge / as far as I know", "zh": "据我所知", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "From a xxx standpoint", "zh": "从…角度", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "The antithesis of…", "zh": "对立面", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "To run counter to…", "zh": "与之相反", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "To apply a blanket rule / an overarching principle", "zh": "一刀切规则 / 总原则", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "The gravity of the problem", "zh": "严重性", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "A common thread", "zh": "a similarity，共通点", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "Each permutation / a series of permutations", "zh": "每种排列组合", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "Lift up vs downplay", "zh": "夸大 vs 轻描淡写", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "Take someone up on", "zh": "接受offer / 邀请 / 挑战", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "Make a pitch / a pitch funnel", "zh": "提出提案 / 层层深入的提案", "sec": "Neutral expressions", "sub": "Discussion moves & framing"}, {"en": "ASAP", "zh": "as soon as possible 尽快", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "In a timely fashion", "zh": "立即做…", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "This is time-sensitive", "zh": "着急事", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "I've been tied up with a deadline", "zh": "忙于，无法抽身", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "To tie up a few things", "zh": "处理事情", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "To hold it up / put it on hold", "zh": "搁置", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Call in sick", "zh": "请病假", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Off duty / get off work", "zh": "下班", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Punch in / punch out", "zh": "上下班打卡", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Bust one's ass", "zh": "work overtime，加班", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "I have errands I've been putting off", "zh": "拖延的事", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Pull off", "zh": "两义：拖延 / 推迟；做成 / 搞定", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "To tap on the university's resources", "zh": "利用资源", "sec": "Neutral expressions", "sub": "Work, time, logistics"}, {"en": "Keep accounts / do bookkeeping", "zh": "记账", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "To tot up / to be totted up to", "zh": "合计 / 加起来", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "To go up by three times", "zh": "涨了三倍", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "To IPO / to go public", "zh": "上市", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "The company was into liquidation", "zh": "破产清算", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "You have to dip deeper into your wallet", "zh": "掏出更多钱", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "I'm broke / I'm tapped out", "zh": "没钱了", "sec": "Neutral expressions", "sub": "Money & business"}, {"en": "Is it a good time? Do you have a minute?", "zh": "你现在方便吗？", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "May I add you on WhatsApp?", "zh": "加个微信", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "Can you do any better? Are there any discounts?", "zh": "能便宜点吗？", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "You're pulling my leg", "zh": "are you kidding me（澳洲版）", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "I'll let you get on (your work)", "zh": "你先忙", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "Give the old dog a rest", "zh": "歇歇", "sec": "Neutral expressions", "sub": "Making requests / small talk"}, {"en": "That's a bit of a tough question to answer, because…", "zh": "这问题不太好答，因为…", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "I'm not an expert when it comes to… but I'm familiar with the common ones", "zh": "我不算专家，但常见的都熟", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "There are many… but off the top of my head I can only think of a few", "zh": "一下子只能想起几个", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "No matter what the outcome is, I have done my best", "zh": "尽力了，结果随缘", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "It embodies purity, happiness and Buddhism", "zh": "体现", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "A prestigious university", "zh": "名校", "sec": "Neutral expressions", "sub": "Interview & self-presentation"}, {"en": "To pull up", "zh": "停车", "sec": "Neutral expressions", "sub": "Driving"}, {"en": "Do the head checks and signals", "zh": "观察 + 打灯", "sec": "Neutral expressions", "sub": "Driving"}, {"en": "We're stuck in heavy stop-and-go traffic", "zh": "走走停停", "sec": "Neutral expressions", "sub": "Driving"}, {"en": "Roll down the window", "zh": "打开车窗", "sec": "Neutral expressions", "sub": "Driving"}, {"en": "To back up", "zh": "倒车一点", "sec": "Neutral expressions", "sub": "Driving"}, {"en": "Falsifiable hypothesis", "zh": "可证伪的假设", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "I'm wary of even citing papers from MDPI", "zh": "持谨慎态度", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "To call out on their academic frauds", "zh": "举报学术造假", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "They stick together as exclusive clusters / tribes", "zh": "学术界抱团", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "An ad hoc decision", "zh": "临时决定", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "Tangible outcome", "zh": "实质结果", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "Relevant", "zh": "相关的，有重大作用的", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "When the rubber hits the road", "zh": "理论落地", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "A tenure track is a probationary period to get a tenure", "zh": "非升即走", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "Objection to utilitarianism", "zh": "对功利主义的反对", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "Antagonism towards AI", "zh": "反AI情绪", "sec": "Neutral expressions", "sub": "Academic / research talk"}, {"en": "You reap what you sow", "zh": "天道好轮回，自食其果", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Let nature take its course", "zh": "顺其自然", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Out of sight, out of mind", "zh": "眼不见心不烦", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Let it be", "zh": "就这样吧", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Stop caring about the nitty gritty", "zh": "别纠结细枝末节", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Don't push a square peg into a round hole", "zh": "强扭的瓜不甜", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Walk with conviction, because predators can spot the prey", "zh": "抬头挺胸走", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "We tend to think everybody revolves around us", "zh": "世界围着自己转", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "People end up there on autopilot with society's expectations", "zh": "随波逐流", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Mimetic desires", "zh": "从别人身上模仿来的欲望", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Leaders are very good at delegating", "zh": "放权", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Do you make other people's life easier or more taxing?", "zh": "省心 vs 费力", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Quit when you are ahead", "zh": "见好就收", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "To turn a blind eye", "zh": "睁一只眼闭一只眼", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "So close, yet so far", "zh": "远在天边近在眼前", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "A full circle moment", "zh": "回到原点的感觉", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "Why bother? What's in it for you? To what end?", "zh": "何必呢，图啥呢", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "All that for this? Did you really have to?", "zh": "至于吗", "sec": "Neutral expressions", "sub": "Life-philosophy / advice register"}, {"en": "To perpetuate", "zh": "使永存", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Internalize sth", "zh": "内化", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To balance out sth", "zh": "抵消", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To freshen up", "zh": "梳洗一下", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To straddle something", "zh": "跨坐", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Be squished", "zh": "被压扁", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To waddle through the snow", "zh": "蹒跚走", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To big up X", "zh": "大力宣传", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Grow and rear", "zh": "耕作养殖", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Wait in ambush / be on the alert", "zh": "埋伏等待 / 时刻警戒", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Blend into / integrate into", "zh": "融为一体", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To dust off my Myki", "zh": "重新使用", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Pace yourself!", "zh": "悠着点", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Hold on there", "zh": "挺住", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Class it up!", "zh": "上点档次", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "To prove it wasn't a fluke, do it again!", "zh": "证明不是侥幸", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "I'm just going to do an eyeballing", "zh": "目测一下", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Dab a bit", "zh": "轻拍，浅尝辄止", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "The last thing I need is special treatment", "zh": "我最不需要的就是特殊照顾", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "It's not like others are lining up for me", "zh": "我又没得挑", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "Are you seeing anyone?", "zh": "你在约会吗", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "That was a punch line", "zh": "幽默妙语（笑点）", "sec": "Neutral expressions", "sub": "Misc neutral phrases"}, {"en": "I totally see your point, but I look at it a bit differently", "zh": "我明白你的意思，但看法略有不同", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "I get where you're coming from, but I have a slightly different take", "zh": "我理解你的立场，但我有不同看法", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "That's a convincing perspective, but here's how I see it…", "zh": "很有说服力，但我是这么看的", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Fair enough, but let me offer another angle…", "zh": "有道理，但我换个角度", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Could you elaborate on that a bit?", "zh": "能再展开讲讲吗", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "I'd love to hear more about that!", "zh": "想多了解一下", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Can you give me an example?", "zh": "能举个例子吗", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Can I pick your brain for a little while?", "zh": "想请教你一下", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Just to make sure I'm on the right foot…", "zh": "我先确认一下理解对不对", "sec": "Neutral expressions", "sub": "Respectful disagreement & softeners"}, {"en": "Let's stay on track", "zh": "别跑题", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's not get sidetracked", "zh": "别被带偏", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We need to keep the ball rolling", "zh": "保持进度", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's circle back to that later", "zh": "稍后再回到这点", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're getting into the weeds", "zh": "陷进细节了", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's take a step back", "zh": "退一步看全局", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's hit the ground running", "zh": "一上来就高效开干", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're off to a good start", "zh": "开局不错", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's lay the groundwork", "zh": "先打基础", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We want to start on the right foot", "zh": "开个好头", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We need to iron out the details", "zh": "敲定细节", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "This is a sticking point", "zh": "卡点 / 争议点", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We need to read between the lines", "zh": "言外之意", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's call a spade a spade", "zh": "直说，实话实说", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's weigh our options before deciding", "zh": "权衡后再决定", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Get everyone on the same page", "zh": "让大家达成共识", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We'll cross that bridge when we get to it", "zh": "船到桥头自然直", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "It's time to bite the bullet", "zh": "硬着头皮面对", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's go back to the drawing board", "zh": "推倒重来", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're at a crossroads", "zh": "关键抉择点", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's put this on the back burner", "zh": "暂时搁置", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's get down to brass tacks", "zh": "直击重点", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We need to play our cards right", "zh": "走好每一步", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's put our heads together", "zh": "一起想办法", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Straight from the horse's mouth", "zh": "从当事人那儿拿到一手消息", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's leave no stone unturned", "zh": "不放过任何可能", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "It's all hands on deck", "zh": "全员上阵", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're in the same boat", "zh": "同舟共济", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're running against the clock", "zh": "时间紧迫", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's make every second count", "zh": "分秒必争", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We need to hit this deadline", "zh": "必须赶上截止", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "No need to reinvent the wheel", "zh": "别重复造轮子", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Let's cut to the chase", "zh": "直奔主题", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're at the eleventh hour", "zh": "最后关头", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "The proof is in the pudding", "zh": "是骡子是马拉出来遛遛", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "That's a step in the right direction", "zh": "朝对的方向迈了一步", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We're moving the needle", "zh": "有实质进展", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "We've got a well-oiled machine", "zh": "运转顺畅的系统", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "That was a home run!", "zh": "大获成功", "sec": "Neutral expressions", "sub": "Business & meeting idioms"}, {"en": "Nice shot! / You had me running all over", "zh": "好球 / 追得我满场跑", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "Gotcha! / That was a tough one", "zh": "抓到你了 / 那球难打", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "Unlucky! / Almost! / It happens to the best of us", "zh": "差一点 / 谁都有失手", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "You got me there / no way I was getting to that", "zh": "那球我够不着", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "What a rally", "zh": "多回合精彩", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "That was pure luck / Did you mean to do that?", "zh": "纯运气 / 你故意的吗", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "We should do this more often / I need to practice more", "zh": "该多打 / 我得多练", "sec": "Neutral expressions", "sub": "Sports & games banter"}, {"en": "EOI", "zh": "expression of interest，意向登记", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "BYO", "zh": "bring your own，自带（酒水等）", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "ETA", "zh": "estimated time of arrival，预计到达时间", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "Ditto", "zh": "同上", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "To word-vomit", "zh": "一股脑倒出，产出垃圾文字", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "To chalk down", "zh": "to write down，记下", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "To roll out", "zh": "推出新产品 / 服务", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "We're in limbo", "zh": "被搁置，悬着", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "To reconvene", "zh": "再次集合", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "I don't have the audacity to do so", "zh": "我没这个厚脸皮 / 胆量", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "Emotional jet lag after a great night", "zh": "狂欢后的情绪时差", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "To lure people with freebies", "zh": "用免费东西吸引人", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "He'll fill the committee chair spot", "zh": "补上委员会主席的位子", "sec": "Neutral expressions", "sub": "Internet slang & acronyms"}, {"en": "Toiletries", "zh": "化妆品 / 洗漱用品", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Broom and mop", "zh": "苕帚 / 拖把", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Humidifier", "zh": "加湿器", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Fragrance / diffuser", "zh": "香薰 / 扩香器", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Shea butter", "zh": "乳木果", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Clip / paper clip", "zh": "夹子 / 曲别针", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Hair clipper", "zh": "推子", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "A dedicated charger", "zh": "专用充电器", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Punnet", "zh": "小浅盘（装蓝莓那种）", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "(Eye) booger", "zh": "眼屎 / 鼻屎", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Sigil", "zh": "图章", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Spindle", "zh": "轴", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Washer", "zh": "垫片", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Rolodex", "zh": "名片转盘", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Night table / bedside table", "zh": "床头柜", "sec": "Thingy", "sub": "Household & everyday objects"}, {"en": "Flash drive / USB flash drive", "zh": "闪存盘", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "Lithium battery", "zh": "锂电池", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "Thermal camera", "zh": "热成像仪", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "Thermometer", "zh": "温度计", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "Beaker", "zh": "烧杯", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "Phishing", "zh": "网络钓鱼", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "A little trick", "zh": "小巧思", "sec": "Thingy", "sub": "Tech & tools"}, {"en": "OB/GYN", "zh": "产科 / 妇科医生", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Epidural anesthesia", "zh": "硬膜外麻醉", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Local / general anesthesia", "zh": "局部 / 全身麻醉", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Postpartum depression", "zh": "产后抑郁", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Antidote", "zh": "解药", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Fluid and crystallized intelligence", "zh": "流体智力 / 晶体智力", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "The polygraph room", "zh": "测谎室", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Be euthanized", "zh": "被安乐死", "sec": "Thingy", "sub": "Medical / body-related"}, {"en": "Hostel", "zh": "青旅", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Bed & breakfast (BnB) / homestay", "zh": "民宿", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Chateau", "zh": "法国城堡", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Living facility", "zh": "养老院", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Laundromat", "zh": "洗衣房", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Soirée", "zh": "晚会", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Ad hoc camp", "zh": "临时营地", "sec": "Thingy", "sub": "Places & venues"}, {"en": "Currawong", "zh": "澳洲钟鹊类的鸟", "sec": "Thingy", "sub": "Animals"}, {"en": "Echidna", "zh": "针鼹鼠", "sec": "Thingy", "sub": "Animals"}, {"en": "Sow / gilt / boar", "zh": "生仔母猪 / 小母猪 / 公猪", "sec": "Thingy", "sub": "Animals"}, {"en": "Komodo dragon", "zh": "科莫多龙", "sec": "Thingy", "sub": "Animals"}, {"en": "Velvet hippo", "zh": "比特犬的昵称", "sec": "Thingy", "sub": "Animals"}, {"en": "Tuxedo / tux", "zh": "无尾燕尾服", "sec": "Thingy", "sub": "Clothing"}, {"en": "Smokey eye", "zh": "烟熏眼妆", "sec": "Thingy", "sub": "Clothing"}, {"en": "The contour blends out well", "zh": "会晕开的（化妆）", "sec": "Thingy", "sub": "Clothing"}, {"en": "Hedge fund", "zh": "对冲基金", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Cash machine / cash cow", "zh": "摇钱树", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Flagship model", "zh": "顶配", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Budget version / base model", "zh": "低配", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Associate", "zh": "助理", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Red tape", "zh": "繁文缛节", "sec": "Thingy", "sub": "Money & business nouns"}, {"en": "Wingman", "zh": "把妹僚机", "sec": "Thingy", "sub": "People / roles"}, {"en": "Whistleblower / real-name whistleblower", "zh": "举报者 / 实名举报者", "sec": "Thingy", "sub": "People / roles"}, {"en": "The third wheel", "zh": "电灯泡", "sec": "Thingy", "sub": "People / roles"}, {"en": "Flesh trader", "zh": "皮条客 / 人贩子", "sec": "Thingy", "sub": "People / roles"}, {"en": "Hustle culture", "zh": "狼性文化，内卷", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Wokeness / wokeism", "zh": "觉醒程度，政治正确", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Reactance", "zh": "逆反心理", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Diplomacy", "zh": "社交手段", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Big gender split", "zh": "性别差异", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Proverb", "zh": "格言", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Finale", "zh": "大结局", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Booby prize", "zh": "伪奖品", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "A brain dump", "zh": "思绪整理", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Crash course on…", "zh": "速成班", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Remedial class / remedial work", "zh": "补习班 / 修复工作", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "LARP", "zh": "真人扮演", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "The birds and the bees", "zh": "性行为（委婉）", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Thirst-trap video", "zh": "引流勾人视频", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Rizz", "zh": "撩人（魅力）", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Slop / AI slop", "zh": "垃圾内容", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Reco", "zh": "recommendation，推荐", "sec": "Thingy", "sub": "Concepts & abstract nouns"}, {"en": "Barley", "zh": "大麦", "sec": "Thingy", "sub": "Misc nouns"}, {"en": "Bramble", "zh": "荆棘 / 黑莓", "sec": "Thingy", "sub": "Misc nouns"}, {"en": "Elderflower", "zh": "接骨木花", "sec": "Thingy", "sub": "Misc nouns"}, {"en": "To score a hat trick", "zh": "帽子戏法（三次进球）", "sec": "Thingy", "sub": "Misc nouns"}, {"en": "Cut", "zh": "牛排部位", "sec": "Food & drink", "sub": "Meats & cuts"}, {"en": "Venison", "zh": "鹿肉", "sec": "Food & drink", "sub": "Meats & cuts"}, {"en": "Veal / mutton", "zh": "小牛肉 / 羊肉", "sec": "Food & drink", "sub": "Meats & cuts"}, {"en": "Ribeye / sirloin / fillet / T-bone", "zh": "肋眼 / 西冷 / 菲力 / T骨", "sec": "Food & drink", "sub": "Meats & cuts"}, {"en": "Tomahawk / rump / chuck / brisket", "zh": "战斧 / 臀肉 / 肩胛 / 牛腩", "sec": "Food & drink", "sub": "Meats & cuts"}, {"en": "Biryani", "zh": "印度香料焖饭", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Chicken tikka masala", "zh": "玛莎拉咖喱鸡块", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Laksa", "zh": "马来西亚叻沙汤面", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Pad thai", "zh": "泰式炒河粉", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Broken rice with pork chops", "zh": "越南碎米猪扒饭", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Takoyaki", "zh": "章鱼烧", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Sashimi", "zh": "刺身", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Tempura", "zh": "天妇罗", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Sukiyaki", "zh": "寿喜烧", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Oden", "zh": "关东煮", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Natto", "zh": "纳豆", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Onigiri", "zh": "饭团", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Tamago", "zh": "玉子烧", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Bruschetta", "zh": "意式烤面包片", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Crostini", "zh": "更小的意式烤面包片", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Ravioli", "zh": "意式方饺", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Casserole", "zh": "烤盘菜", "sec": "Food & drink", "sub": "Dishes"}, {"en": "Durum wheat", "zh": "杜兰小麦", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Lentil soup", "zh": "扁豆汤", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Fermented fruits", "zh": "发酵的水果", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Artificial / authentic vanilla bean", "zh": "人造 / 天然香草荚", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "A smorgasbord of xxx", "zh": "瑞典冷盘自助 / 拼盘", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Pan-searing", "zh": "煎焦", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Parched corn", "zh": "烤玉米", "sec": "Food & drink", "sub": "Ingredients & cooking"}, {"en": "Fruity / full-bodied / light-bodied", "zh": "果香 / 浓郁 / 清淡", "sec": "Food & drink", "sub": "Flavor & aroma"}, {"en": "Smooth / pungent / herbal aroma", "zh": "顺滑 / 冲 / 草本香", "sec": "Food & drink", "sub": "Flavor & aroma"}, {"en": "Zesty and tangy flavor", "zh": "热烈、浓郁的风味", "sec": "Food & drink", "sub": "Flavor & aroma"}, {"en": "It's quite pungent!", "zh": "这味儿真冲", "sec": "Food & drink", "sub": "Flavor & aroma"}, {"en": "A hint of nutty flavor", "zh": "一丝丝坚果味", "sec": "Food & drink", "sub": "Flavor & aroma"}, {"en": "Genmaicha", "zh": "玄米茶（绿茶加烘焙糙米）", "sec": "Food & drink", "sub": "Coffee & tea"}, {"en": "Coffee makes me jittery", "zh": "心慌手抖，紧张不安", "sec": "Food & drink", "sub": "Coffee & tea"}, {"en": "People here are fueled by coffee", "zh": "靠咖啡续命", "sec": "Food & drink", "sub": "Coffee & tea"}, {"en": "I've been stuffing my face all night", "zh": "大快朵颐", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Booze", "zh": "酒", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Bartending", "zh": "调酒", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Shaker / jigger / strainer", "zh": "调酒器 / 量酒器 / 滤冰器", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "On the rocks", "zh": "加冰", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Drink like a fish", "zh": "酒量好", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Wasted / hammered", "zh": "烂醉", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "I'm on the wagon", "zh": "戒酒", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Chug a bottle / a chugging contest", "zh": "吨吨吨 / 一口闷比赛", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Bottoms up!", "zh": "干杯", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Hold my beer!", "zh": "看我的！（好胜）", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Drunk-dialed", "zh": "醉酒后打电话", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "To be intoxicated", "zh": "喝得烂醉", "sec": "Food & drink", "sub": "Eating & drinking"}, {"en": "Top shelf", "zh": "高档的酒", "sec": "Food & drink", "sub": "Eating & drinking"}];
+DATA.forEach(c=>c.key=c.en.toLowerCase());
+document.getElementById("stamp").textContent = "从 Notion 生成 · "+BUILT+" · "+DATA.length+" 张";
+
+const SNOOZE_DAYS = 7;
+const DAY = 86400000;
+
+/* ---------- storage: keyed by the English text, so it survives deck updates ---------- */
+var mem={}, backend="memory";
+try{ if(window.localStorage){ localStorage.setItem("co-probe","1"); localStorage.removeItem("co-probe"); backend="local"; } }catch(e){}
+try{ if(window.storage && typeof window.storage.get==="function"){ backend="claude"; } }catch(e){}
+
+const store={
+  async get(k){
+    if(backend==="claude"){
+      try{ const r=await window.storage.get(k); return r?JSON.parse(r.value):null; }catch(e){}
+    }
+    if(backend==="local"){
+      try{ const v=localStorage.getItem("co0711:"+k); return v?JSON.parse(v):null; }catch(e){}
+    }
+    return mem[k]||null;
+  },
+  async set(k,v){
+    mem[k]=v;
+    if(backend==="claude"){
+      try{ await window.storage.set(k,JSON.stringify(v)); return; }catch(e){}
+    }
+    if(backend==="local"){
+      try{ localStorage.setItem("co0711:"+k,JSON.stringify(v)); }catch(e){}
+    }
+  }
+};
+let stars={};   // key -> 1..5
+let known={};   // key -> timestamp (hidden until)
+
+/* ---------- state ---------- */
+let mode="mix", cat="all", starOnly=false;
+let order=[], pos=0;
+const deck=document.getElementById("deck"), endPanel=document.getElementById("end");
+const isSnoozed=k=>(known[k]||0)>Date.now();
+
+(function buildCatMenu(){
+  const sel=document.getElementById("catSel");
+  sel.innerHTML='<option value="all">全部 All sections</option>';
+  const bySec={};
+  DATA.forEach(function(c){ if(!bySec[c.sec]) bySec[c.sec]=new Set(); bySec[c.sec].add(c.sub); });
+  Object.keys(bySec).forEach(sec=>{
+    const g=document.createElement("optgroup");g.label=sec;
+    const a=document.createElement("option");a.value="sec:"+sec;a.textContent="— 整章 "+sec;g.appendChild(a);
+    [...bySec[sec]].forEach(sub=>{const o=document.createElement("option");o.value="sub:"+sub;o.textContent=sub;g.appendChild(o);});
+    sel.appendChild(g);
+  });
+  sel.addEventListener("change",()=>{cat=sel.value;starOnly=false;start();});
+})();
+
+document.querySelectorAll("#modeSeg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#modeSeg button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");mode=b.dataset.mode;start();
+}));
+
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+function pool(){
+  let p = starOnly ? DATA.filter(c=>stars[c.key])
+    : cat==="all" ? DATA.slice()
+    : (()=>{const [k,v]=cat.split(/:(.+)/);return DATA.filter(c=>k==="sec"?c.sec===v:c.sub===v);})();
+  if(!starOnly) p=p.filter(c=>!isSnoozed(c.key));
+  return p;
+}
+
+function start(){
+  order=shuffle(pool().map(c=>({key:c.key,i:DATA.indexOf(c),side:mode==="mix"?(Math.random()<.5?"en":"zh"):mode})));
+  pos=0;endPanel.classList.remove("show");render();
+}
+
+/* ---------- render ---------- */
+function cardHTML(item){
+  const d=DATA[item.i], frontEn=item.side==="en";
+  const s=stars[d.key]||0;
+  const mark = isSnoozed(d.key) ? `<div class="mark known">熟词 · ${SNOOZE_DAYS} 天内不再出现</div>`
+             : s ? `<div class="mark">${"★".repeat(s)}${"☆".repeat(5-s)}</div>` : "";
+  const face=(isEn,txt,tag,isFront)=>`
+    <div class="face ${isFront?"front":"back"}">
+      <div class="chip"><span class="sub">${d.sub}</span><span class="side">${tag}</span></div>
+      <div class="${isEn?"en":"zh"}">${txt}</div>
+      ${mark}
+      <div class="hint">点一下翻面 · 左右滑动翻页 · ✕ 加星 · ✓ 我很熟</div>
+      <span class="nav l">‹</span><span class="nav r">›</span>
+    </div>`;
+  return `<div class="card">
+    ${face(frontEn, frontEn?d.en:d.zh, frontEn?"EN":"中", true)}
+    ${face(!frontEn, frontEn?d.zh:d.en, frontEn?"中":"EN", false)}
+  </div>`;
+}
+
+function render(dir){
+  deck.querySelectorAll(".cw").forEach(e=>e.remove());
+  if(!order.length || pos>=order.length){finish();updateHUD();return;}
+  const el=document.createElement("div");
+  el.className="cw"+(dir==="next"?" in-r":dir==="prev"?" in-l":"");
+  el.innerHTML=cardHTML(order[pos]);
+  deck.insertBefore(el,endPanel);
+  if(dir) requestAnimationFrame(()=>el.classList.remove("in-r","in-l"));
+  gestures(el);
+  updateHUD();
+}
+
+function updateHUD(){
+  const n=order.length;
+  document.getElementById("posTxt").textContent=`${Math.min(pos+1,n)} / ${n}`;
+  document.getElementById("okN").textContent=Object.keys(known).filter(k=>isSnoozed(k)).length;
+  document.getElementById("stN").textContent=Object.keys(stars).length;
+  document.getElementById("wbCount").textContent=Object.keys(stars).length;
+  document.getElementById("fill").style.width=(n?100*Math.min(pos,n)/n:0)+"%";
+}
+
+/* ---------- navigation (swipe) ---------- */
+function go(step){
+  const next=pos+step;
+  if(next<0) return;
+  if(next>=order.length){ pos=order.length; render(); return; }
+  pos=next; render(step>0?"next":"prev");
+}
+
+/* ---------- grading (buttons) ---------- */
+function grade(kind){
+  if(pos>=order.length) return;
+  const k=order[pos].key;
+  if(kind==="star"){
+    delete known[k];
+    stars[k]=Math.min(5,(stars[k]||0)+1);
+    store.set("stars",stars);store.set("known",known);
+  }else{
+    delete stars[k];
+    known[k]=Date.now()+SNOOZE_DAYS*DAY;
+    store.set("stars",stars);store.set("known",known);
+  }
+  go(1);
+}
+
+function finish(){
+  const starred=Object.keys(stars).length;
+  const hasCards=order.length>0;
+  document.getElementById("endTitle").textContent=hasCards?"这一轮结束":"这里没有卡片";
+  document.getElementById("endTxt").textContent=hasCards
+    ? `生词本里有 ${starred} 个词，${Object.keys(known).filter(isSnoozed).length} 个词标成了熟词，暂时不出现。`
+    : "这个章节的词都标成熟词了，或者还没加过星。";
+  document.getElementById("studyStarBtn").style.display=starred?"block":"none";
+  endPanel.classList.add("show");
+}
+document.getElementById("againBtn").addEventListener("click",()=>{starOnly=false;start();});
+document.getElementById("studyStarBtn").addEventListener("click",()=>{starOnly=true;start();});
+
+/* ---------- gestures ---------- */
+function gestures(wrap){
+  const card=wrap.querySelector(".card");
+  let sx=0,sy=0,dx=0,dy=0,on=false,moved=false;
+  const navs=()=>({l:card.querySelectorAll(".nav.l"),r:card.querySelectorAll(".nav.r")});
+  const clear=()=>{const n=navs();n.l.forEach(x=>x.style.opacity=0);n.r.forEach(x=>x.style.opacity=0);};
+  wrap.addEventListener("pointerdown",e=>{on=true;moved=false;sx=e.clientX;sy=e.clientY;dx=dy=0;
+    wrap.classList.add("drag");wrap.setPointerCapture(e.pointerId);});
+  wrap.addEventListener("pointermove",e=>{
+    if(!on)return;
+    dx=e.clientX-sx;dy=e.clientY-sy;
+    if(Math.abs(dx)>6||Math.abs(dy)>6)moved=true;
+    wrap.style.transform=`translate(${dx}px,${dy*.15}px) rotate(${dx/30}deg)`;
+    const n=navs(),p=Math.min(Math.abs(dx)/80,1);
+    if(dx>0){n.l.forEach(x=>x.style.opacity=p);n.r.forEach(x=>x.style.opacity=0);}
+    else{n.r.forEach(x=>x.style.opacity=p);n.l.forEach(x=>x.style.opacity=0);}
+  });
+  wrap.addEventListener("pointerup",()=>{
+    if(!on)return;on=false;wrap.classList.remove("drag");
+    const t=Math.min(90,innerWidth*.22);
+    if(dx<-t){ wrap.classList.add("out-l"); setTimeout(()=>go(1),120); return; }   /* 左滑 → 下一张 */
+    if(dx> t){ if(pos===0){wrap.style.transform="";clear();return;}
+               wrap.classList.add("out-r"); setTimeout(()=>go(-1),120); return; }  /* 右滑 → 上一张 */
+    wrap.style.transform="";clear();
+    if(!moved) card.classList.toggle("flip");
+  });
+  wrap.addEventListener("pointercancel",()=>{on=false;wrap.classList.remove("drag");wrap.style.transform="";clear();});
+}
+
+document.getElementById("okBtn").addEventListener("click",()=>grade("known"));
+document.getElementById("starBtn").addEventListener("click",()=>grade("star"));
+document.getElementById("flipBtn").addEventListener("click",()=>{
+  const c=deck.querySelector(".cw .card"); if(c)c.classList.toggle("flip");
+});
+addEventListener("keydown",e=>{
+  if(document.getElementById("sheet").classList.contains("show"))return;
+  if(e.key==="ArrowRight")go(1);
+  else if(e.key==="ArrowLeft")go(-1);
+  else if(e.key==="x"||e.key==="X")grade("star");
+  else if(e.key==="Enter")grade("known");
+  else if(e.key===" "||e.key==="ArrowUp"){e.preventDefault();document.getElementById("flipBtn").click();}
+});
+
+/* ---------- wordbook ---------- */
+const sheet=document.getElementById("sheet");
+let tab="star";
+document.querySelectorAll("#wbSeg button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#wbSeg button").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");tab=b.dataset.tab;openWB();
+}));
+function openWB(){
+  const list=document.getElementById("wbList");
+  const showStar = tab==="star";
+  const keys = showStar
+    ? Object.keys(stars).sort((a,b)=>stars[b]-stars[a])
+    : Object.keys(known).filter(isSnoozed).sort((a,b)=>known[a]-known[b]);
+  document.getElementById("sheetTitle").textContent = showStar?"生词本":"熟词";
+  document.getElementById("wbStudy").style.display = showStar?"block":"none";
+  document.getElementById("wbClear").textContent = showStar?"清空星标":"全部恢复";
+  document.getElementById("wbSummary").textContent = keys.length
+    ? (showStar ? `${keys.length} 个词 · 星越多越不熟` : `${keys.length} 个词 · 到期后自动回到牌堆`) : "";
+  list.innerHTML = keys.length ? keys.map(k=>{
+    const d=DATA.find(c=>c.key===k); if(!d) return "";
+    const right = showStar ? "★".repeat(stars[k])
+      : Math.max(1,Math.ceil((known[k]-Date.now())/DAY))+" 天";
+    return `<div class="wb-item">
+      <div class="wb-text"><div class="e">${d.en}</div><div class="z">${d.zh}</div></div>
+      <span class="wb-stars">${right}</span>
+      <button class="wb-x" data-x="${k}">✕</button></div>`;
+  }).join("") : `<div class="wb-empty">${showStar
+      ? "生词本还是空的。<br>练习时点 ✕ 就会给这个词加一颗星，最多五颗。"
+      : "还没有熟词。<br>点 ✓ 表示这个词很熟，它会有七天不再出现。"}</div>`;
+  sheet.classList.add("show");
+}
+document.getElementById("wbBtn").addEventListener("click",openWB);
+document.getElementById("closeSheet").addEventListener("click",()=>{sheet.classList.remove("show");updateHUD();});
+sheet.addEventListener("click",e=>{if(e.target===sheet){sheet.classList.remove("show");updateHUD();}});
+document.getElementById("wbList").addEventListener("click",e=>{
+  const x=e.target.closest("[data-x]");if(!x)return;
+  const k=x.dataset.x;
+  if(tab==="star"){delete stars[k];store.set("stars",stars);}
+  else{delete known[k];store.set("known",known);}
+  openWB();updateHUD();
+});
+document.getElementById("wbStudy").addEventListener("click",()=>{
+  if(!Object.keys(stars).length)return;
+  sheet.classList.remove("show");starOnly=true;start();
+});
+document.getElementById("wbClear").addEventListener("click",()=>{
+  if(tab==="star"){stars={};store.set("stars",stars);}else{known={};store.set("known",known);}
+  openWB();updateHUD();
+});
+
+/* ---------- boot ---------- */
+(async()=>{
+  const where={claude:"进度存在 Claude",local:"进度存在这台设备",memory:"进度不会保存"}[backend];
+  document.getElementById("stamp").textContent="从 Notion 生成 · "+BUILT+" · "+DATA.length+" 张 · "+where;
+  stars=(await store.get("stars"))||{};
+  known=(await store.get("known"))||{};
+  Object.keys(known).forEach(k=>{if(!isSnoozed(k))delete known[k];});
+  start();
+})();
+</script>
+</body>
+</html>
