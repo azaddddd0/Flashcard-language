@@ -47,10 +47,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789823418561
+    },
+    "ring it up": {
+      "en": "Ring it up",
+      "zh": "Add the order",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789823567029
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789823421280
+  "updatedAt": 1789823570095
 }
