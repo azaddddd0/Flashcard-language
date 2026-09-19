@@ -63,10 +63,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789823716700
+    },
+    "the problem at hand": {
+      "en": "The problem at hand",
+      "zh": "Status quo problem",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789823742129
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789823725208
+  "updatedAt": 1789823744140
 }
