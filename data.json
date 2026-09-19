@@ -71,10 +71,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789823742129
+    },
+    "poke bowl": {
+      "en": "Poke bowl",
+      "zh": "Meat over rice and veggies",
+      "sec": "Food / Drink",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789824147070
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789823744140
+  "updatedAt": 1789824154046
 }
