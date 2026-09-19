@@ -467,6 +467,26 @@ const gh = (function(){
     setStatus("Sync pending…");
     timer = setTimeout(pushRemote, 8000);
   }
+
+  let pollTimer = null;
+  async function pollOnce(){
+    if(!token || document.hidden || pushing) return;
+    const remote = await pullRemote();
+    if(mergeIn(remote)){
+      store.set("customCards", customCards);
+      store.set("overrides", overrides);
+      store.set("stars", stars);
+      store.set("binned", binned);
+      rebuildAll(); buildCatMenu(); start();
+      setStatus("Synced just now", "ok");
+    }
+  }
+  function startPolling(){
+    if(pollTimer || !token) return;
+    pollTimer = setInterval(pollOnce, 45000);
+    document.addEventListener("visibilitychange", function(){ if(!document.hidden) pollOnce(); });
+  }
+
   return {
     scheduleSync: scheduleSyncNow,
     loadToken: loadToken,
@@ -474,6 +494,7 @@ const gh = (function(){
     pullRemote: pullRemote,
     mergeIn: mergeIn,
     pushNow: pushRemote,
+    startPolling: startPolling,
     hasToken(){ return !!token; },
     setStatusEl(){ statusEl = document.getElementById("syncStatus"); }
   };
@@ -943,6 +964,7 @@ document.getElementById("saveTokenBtn").addEventListener("click",async function(
   document.getElementById("ghTokenInput").value="";
   showBackupMsg("Token saved — syncing now","ok");
   gh.pushNow();
+  gh.startPolling();
 });
 document.getElementById("clearTokenBtn").addEventListener("click",async function(){
   await gh.saveToken(null);
@@ -1099,6 +1121,7 @@ function refreshDailyUI(){
       store.set("binned", binned);
       rebuildAll(); buildCatMenu(); start();
     }
+    gh.startPolling();
   }
 })();
 </script>
