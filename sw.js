@@ -1,5 +1,5 @@
 /* Bump CACHE when you upload a new deck, so phones pick up the new words. */
-const CACHE = "casual-oral-v6";
+const CACHE = "casual-oral-v7";
 const FILES = [
   "./",
   "./index.html",
@@ -21,9 +21,12 @@ self.addEventListener("activate", e => {
   );
 });
 
-/* Network first: newest deck when online, cached copy when offline. */
+/* Network first: newest deck when online, cached copy when offline.
+   Cross-origin requests (GitHub sync) pass straight through — not cached,
+   not served offline-stale. */
 self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
+  if (new URL(e.request.url).origin !== location.origin) return;
   e.respondWith(
     fetch(e.request)
       .then(res => {

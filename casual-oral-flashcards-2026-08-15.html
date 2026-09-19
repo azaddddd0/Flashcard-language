@@ -256,6 +256,17 @@ select{font-size:.72rem;color:var(--ink);background:var(--card);border:1px solid
     </div>
 
     <div class="mpane" id="paneBackup" style="display:none">
+      <div class="field">
+        <label>Auto-sync to GitHub (optional) — status: <span id="syncStatus" style="color:var(--ink-soft)">not set up</span></label>
+        <input type="password" id="ghTokenInput" placeholder="Paste a GitHub token scoped to this repo">
+      </div>
+      <button class="pill blue" id="saveTokenBtn" style="width:100%">Save token &amp; sync now</button>
+      <button class="pill alt" id="clearTokenBtn" style="width:100%;margin-top:6px">Remove token / disable</button>
+      <p style="font-size:.62rem;color:var(--ink-soft);margin-top:8px;line-height:1.5">
+        With a token saved, new words and star/bin changes push to this repo's <code>data.json</code> automatically a few seconds after you stop interacting. The token is stored only in this device's local storage.
+      </p>
+      <hr style="border:none;border-top:1px solid var(--line);margin:16px 0">
+
       <div class="msg" id="backupMsg"></div>
       <div class="field">
         <label>Your added / edited words (<span id="backupCount">0</span>) — copy this and send it to sync into GitHub</label>
@@ -349,8 +360,124 @@ const store={
     mem[k]=v;
     if(backend==="claude"){ try{ await window.storage.set(k,JSON.stringify(v)); return; }catch(e){} }
     if(backend==="local"){ try{ localStorage.setItem("co0711:"+k,JSON.stringify(v)); }catch(e){} }
+    if(SYNC_KEYS.indexOf(k)>=0) gh.scheduleSync();
   }
 };
+
+/* ---------- GitHub auto-sync ----------
+   Pushes stars/binned/customCards/overrides to a small data.json file in the
+   repo a few seconds after things stop changing, so progress and new words
+   made on one device show up on others. Fully optional: with no token saved,
+   everything behaves exactly as pure local storage, same as before. */
+const SYNC_KEYS = ["stars","binned","customCards","overrides"];
+const gh = (function(){
+  const OWNER="azaddddd0", REPO="Flashcard-language", BRANCH="main", PATH="data.json";
+  const RAW_URL = "https://raw.githubusercontent.com/"+OWNER+"/"+REPO+"/"+BRANCH+"/"+PATH;
+  const API_URL = "https://api.github.com/repos/"+OWNER+"/"+REPO+"/contents/"+PATH;
+  let token = null, timer = null, statusEl = null, pushing = false, pendingAgain = false;
+
+  function setStatus(text, cls){
+    if(!statusEl) statusEl = document.getElementById("syncStatus");
+    if(!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.style.color = cls==="err" ? "var(--seal)" : cls==="ok" ? "var(--jade)" : "var(--ink-soft)";
+  }
+  function b64encode(str){
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+  function b64decode(str){
+    return decodeURIComponent(escape(atob(str)));
+  }
+  async function loadToken(){
+    token = await store.get("ghToken");
+    return token;
+  }
+  async function saveToken(t){
+    token = t || null;
+    await store.set("ghToken", token);
+  }
+  function snapshot(){
+    return { customCards:customCards, overrides:overrides, stars:stars, binned:binned, updatedAt: Date.now() };
+  }
+  async function pullRemote(){
+    try{
+      const res = await fetch(RAW_URL + "?t=" + Date.now(), { cache:"no-store" });
+      if(!res.ok) return null;
+      return await res.json();
+    }catch(e){ return null; }
+  }
+  function mergeIn(remote){
+    if(!remote) return false;
+    let changed = false;
+    ["customCards","overrides"].forEach(function(field){
+      const dst = field==="customCards" ? customCards : overrides;
+      const src = remote[field] || {};
+      Object.keys(src).forEach(function(k){
+        if(!(k in dst)){ dst[k] = src[k]; changed = true; }
+      });
+    });
+    ["stars","binned"].forEach(function(field){
+      const dst = field==="stars" ? stars : binned;
+      const src = remote[field] || {};
+      Object.keys(src).forEach(function(k){
+        if(src[k] && !dst[k]){ dst[k] = true; changed = true; }
+      });
+    });
+    return changed;
+  }
+  async function pushRemote(){
+    if(!token) return;
+    if(pushing){ pendingAgain = true; return; }
+    pushing = true;
+    setStatus("Syncing…");
+    try{
+      let sha = null;
+      const head = await fetch(API_URL, { headers: authHeaders() });
+      if(head.status===200){ const j = await head.json(); sha = j.sha; }
+      const body = {
+        message: "Sync from device @ " + new Date().toISOString(),
+        content: b64encode(JSON.stringify(snapshot(), null, 2)),
+        branch: BRANCH
+      };
+      if(sha) body.sha = sha;
+      const put = await fetch(API_URL, { method:"PUT", headers: authHeaders(), body: JSON.stringify(body) });
+      if(put.status===409){
+        // someone else wrote in between — pull, merge, retry once
+        const remote = await pullRemote();
+        mergeIn(remote);
+        rebuildAll(); buildCatMenu(); start();
+        pushing = false;
+        return pushRemote();
+      }
+      if(!put.ok){ throw new Error("HTTP "+put.status); }
+      setStatus("Synced just now", "ok");
+    }catch(e){
+      setStatus("Sync failed — will retry ("+e.message+")", "err");
+    }finally{
+      pushing = false;
+      if(pendingAgain){ pendingAgain = false; scheduleSyncNow(); }
+    }
+  }
+  function authHeaders(){
+    return { "Authorization": "Bearer "+token, "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
+  }
+  function scheduleSyncNow(){
+    clearTimeout(timer);
+    if(!token) return;
+    setStatus("Sync pending…");
+    timer = setTimeout(pushRemote, 8000);
+  }
+  return {
+    scheduleSync: scheduleSyncNow,
+    loadToken: loadToken,
+    saveToken: saveToken,
+    pullRemote: pullRemote,
+    mergeIn: mergeIn,
+    pushNow: pushRemote,
+    hasToken(){ return !!token; },
+    setStatusEl(){ statusEl = document.getElementById("syncStatus"); }
+  };
+})();
 
 const DAY = 86400000;
 let stars={}, binned={}, customCards={}, overrides={};
@@ -809,12 +936,27 @@ document.getElementById("importBackupBtn").addEventListener("click",function(){
   showBackupMsg("Imported and merged into this device","ok");
 });
 
+document.getElementById("saveTokenBtn").addEventListener("click",async function(){
+  const t=document.getElementById("ghTokenInput").value.trim();
+  if(!t){ showBackupMsg("Paste a token first","warn"); return; }
+  await gh.saveToken(t);
+  document.getElementById("ghTokenInput").value="";
+  showBackupMsg("Token saved — syncing now","ok");
+  gh.pushNow();
+});
+document.getElementById("clearTokenBtn").addEventListener("click",async function(){
+  await gh.saveToken(null);
+  document.getElementById("syncStatus").textContent="not set up";
+  document.getElementById("syncStatus").style.color="var(--ink-soft)";
+  showBackupMsg("Auto-sync disabled on this device","ok");
+});
+
 function switchMTab(tab){
   document.querySelectorAll("#mtabs button").forEach(function(b){b.classList.toggle("on", b.dataset.tab===tab);});
   document.getElementById("paneAdd").style.display = tab==="add"?"block":"none";
   document.getElementById("paneSearch").style.display = tab==="search"?"block":"none";
   document.getElementById("paneBackup").style.display = tab==="backup"?"block":"none";
-  if(tab==="backup") refreshBackupPane();
+  if(tab==="backup"){ refreshBackupPane(); gh.setStatusEl(); if(gh.hasToken()) document.getElementById("syncStatus").textContent="enabled"; }
 }
 document.querySelectorAll("#mtabs button").forEach(function(b){
   b.addEventListener("click",function(){ switchMTab(b.dataset.tab); });
@@ -871,11 +1013,12 @@ function renderReview(){
   else list.sort(function(a,b){return a.sec.localeCompare(b.sec) || a.en.localeCompare(b.en);});
   document.getElementById("revSummary").textContent = list.length+" words";
   const box=document.getElementById("reviewList");
-  box.innerHTML = list.length ? list.slice(0,400).map(function(c){
+  const cap = catV==="all" ? 400 : list.length;
+  box.innerHTML = list.length ? list.slice(0,cap).map(function(c){
     return '<div class="search-hit" data-key="'+c.key+'"><div class="e">'+c.en+(c.custom?' <span style="color:var(--blue);font-size:.65rem">custom</span>':'')+'</div>'
       +'<div class="z">'+(showChinese?c.zh:"···")+'</div><div class="c">'+c.sec+'</div>'
       +'<span class="edit-link">Edit →</span></div>';
-  }).join("") + (list.length>400 ? '<div class="wb-empty">Showing first 400 of '+list.length+' — narrow with a category filter to see more.</div>' : "")
+  }).join("") + (list.length>cap ? '<div class="wb-empty">Showing first '+cap+' of '+list.length+' — narrow with a category filter to see more.</div>' : "")
     : '<div class="wb-empty">No words in this section.</div>';
 }
 document.getElementById("reviewList").addEventListener("click",function(e){
@@ -945,6 +1088,18 @@ function refreshDailyUI(){
   rebuildAll();
   buildCatMenu();
   start();
+
+  await gh.loadToken();
+  if(gh.hasToken()){
+    const remote = await gh.pullRemote();
+    if(gh.mergeIn(remote)){
+      store.set("customCards", customCards);
+      store.set("overrides", overrides);
+      store.set("stars", stars);
+      store.set("binned", binned);
+      rebuildAll(); buildCatMenu(); start();
+    }
+  }
 })();
 </script>
 </body>
