@@ -1,5 +1,5 @@
 /* Bump CACHE when you upload a new deck, so phones pick up the new words. */
-const CACHE = "casual-oral-v5";
+const CACHE = "casual-oral-v6";
 const FILES = [
   "./",
   "./index.html",

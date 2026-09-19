@@ -215,6 +215,7 @@ select{font-size:.72rem;color:var(--ink);background:var(--card);border:1px solid
     <div class="mtabs" id="mtabs">
       <button data-tab="add" class="on">Add / Edit</button>
       <button data-tab="search">Search</button>
+      <button data-tab="backup">Backup</button>
     </div>
 
     <div class="mpane" id="paneAdd">
@@ -252,6 +253,21 @@ select{font-size:.72rem;color:var(--ink);background:var(--card);border:1px solid
     <div class="mpane" id="paneSearch" style="display:none">
       <input type="text" class="search-box" id="searchBox" placeholder="Search English or Chinese…">
       <div class="wb-list" id="searchResults" style="margin-top:10px"></div>
+    </div>
+
+    <div class="mpane" id="paneBackup" style="display:none">
+      <div class="msg" id="backupMsg"></div>
+      <div class="field">
+        <label>Your added / edited words (<span id="backupCount">0</span>) — copy this and send it to sync into GitHub</label>
+        <textarea id="backupOut" readonly rows="8" style="font-family:monospace;font-size:.65rem"></textarea>
+      </div>
+      <button class="pill blue" id="copyBackupBtn" style="width:100%">Copy backup</button>
+
+      <div class="field" style="margin-top:16px">
+        <label>Paste a backup here to restore / merge it into this device</label>
+        <textarea id="backupIn" rows="8" placeholder="Paste backup JSON here" style="font-family:monospace;font-size:.65rem"></textarea>
+      </div>
+      <button class="pill alt" id="importBackupBtn" style="width:100%">Import / merge</button>
     </div>
   </div>
 </div>
@@ -754,10 +770,51 @@ document.getElementById("deleteWordBtn").addEventListener("click",function(){
 });
 document.getElementById("clearFormBtn").addEventListener("click",resetForm);
 
+function buildBackupJSON(){
+  return JSON.stringify({ customCards:customCards, overrides:overrides }, null, 2);
+}
+function refreshBackupPane(){
+  const data = JSON.parse(buildBackupJSON());
+  document.getElementById("backupCount").textContent =
+    Object.keys(data.customCards).length + Object.keys(data.overrides).length;
+  document.getElementById("backupOut").value = buildBackupJSON();
+}
+function showBackupMsg(text,kind){
+  const el=document.getElementById("backupMsg");
+  if(!text){ el.className="msg"; el.textContent=""; return; }
+  el.className="msg show "+kind; el.textContent=text;
+}
+document.getElementById("copyBackupBtn").addEventListener("click",function(){
+  const out=document.getElementById("backupOut");
+  out.focus(); out.select();
+  navigator.clipboard && navigator.clipboard.writeText(out.value).then(function(){
+    showBackupMsg("Copied — paste it wherever you want to save it","ok");
+  }).catch(function(){
+    try{ document.execCommand("copy"); showBackupMsg("Copied — paste it wherever you want to save it","ok"); }
+    catch(e){ showBackupMsg("Couldn't auto-copy — text is selected, copy it manually","warn"); }
+  });
+});
+document.getElementById("importBackupBtn").addEventListener("click",function(){
+  const raw=document.getElementById("backupIn").value.trim();
+  if(!raw){ showBackupMsg("Paste a backup first","warn"); return; }
+  let data;
+  try{ data=JSON.parse(raw); }catch(e){ showBackupMsg("That doesn't look like valid backup JSON","warn"); return; }
+  Object.assign(customCards, data.customCards||{});
+  Object.assign(overrides, data.overrides||{});
+  store.set("customCards", customCards);
+  store.set("overrides", overrides);
+  rebuildAll(); buildCatMenu(); start();
+  refreshBackupPane();
+  document.getElementById("backupIn").value="";
+  showBackupMsg("Imported and merged into this device","ok");
+});
+
 function switchMTab(tab){
   document.querySelectorAll("#mtabs button").forEach(function(b){b.classList.toggle("on", b.dataset.tab===tab);});
   document.getElementById("paneAdd").style.display = tab==="add"?"block":"none";
   document.getElementById("paneSearch").style.display = tab==="search"?"block":"none";
+  document.getElementById("paneBackup").style.display = tab==="backup"?"block":"none";
+  if(tab==="backup") refreshBackupPane();
 }
 document.querySelectorAll("#mtabs button").forEach(function(b){
   b.addEventListener("click",function(){ switchMTab(b.dataset.tab); });
