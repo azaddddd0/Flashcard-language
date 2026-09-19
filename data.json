@@ -1,7 +1,40 @@
 {
-  "customCards": {},
+  "customCards": {
+    "a wordaround": {
+      "en": "a wordaround",
+      "zh": "变通方法",
+      "sec": "Academic / Productivity",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789801142016
+    },
+    "you and i go way back": {
+      "en": "you and i go way back",
+      "zh": "很早就认识",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789801706773
+    },
+    "you're walking on the ice": {
+      "en": "you're walking on the ice",
+      "zh": "in danger",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789801741022
+    },
+    "griddle / grill": {
+      "en": "griddle / grill",
+      "zh": "a griddle is a flat board without holes, a grill is with grillers",
+      "sec": "Food / Drink",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789801801002
+    }
+  },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789815305497
+  "updatedAt": 1789815273088
 }

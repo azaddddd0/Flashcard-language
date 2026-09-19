@@ -431,9 +431,27 @@ const gh = (function(){
     pushing = true;
     setStatus("Syncing…");
     try{
+      // Always fetch + merge in whatever is currently on GitHub before
+      // overwriting it — otherwise a device with older local state (e.g.
+      // one that hasn't pulled a just-added card from another device yet)
+      // would push its own stale snapshot and silently wipe out the newer
+      // remote data, even though there's no sha conflict to catch it.
       let sha = null;
       const head = await fetch(API_URL, { headers: authHeaders(), keepalive:true });
-      if(head.status===200){ const j = await head.json(); sha = j.sha; }
+      if(head.status===200){
+        const j = await head.json();
+        sha = j.sha;
+        try{
+          const remote = JSON.parse(b64decode(j.content.replace(/\n/g,"")));
+          if(mergeIn(remote)){
+            store.set("customCards", customCards);
+            store.set("overrides", overrides);
+            store.set("stars", stars);
+            store.set("binned", binned);
+            rebuildAll(); buildCatMenu(); start();
+          }
+        }catch(e){ /* malformed remote content — fall through and push local as-is */ }
+      }
       const body = {
         message: "Sync from device @ " + new Date().toISOString(),
         content: b64encode(JSON.stringify(snapshot(), null, 2)),
@@ -442,10 +460,7 @@ const gh = (function(){
       if(sha) body.sha = sha;
       const put = await fetch(API_URL, { method:"PUT", headers: authHeaders(), body: JSON.stringify(body), keepalive:true });
       if(put.status===409){
-        // someone else wrote in between — pull, merge, retry once
-        const remote = await pullRemote();
-        mergeIn(remote);
-        rebuildAll(); buildCatMenu(); start();
+        // someone else wrote in the moment between our GET and PUT — retry once
         pushing = false;
         return pushRemote();
       }
