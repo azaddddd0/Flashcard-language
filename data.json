@@ -95,10 +95,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789824687571
+    },
+    "have a soft spot for underdogs": {
+      "en": "Have a soft spot for underdogs",
+      "zh": "心软",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789825176675
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789824689655
+  "updatedAt": 1789825178720
 }
