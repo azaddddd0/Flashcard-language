@@ -103,10 +103,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789825176675
+    },
+    "i’m a little under the weather": {
+      "en": "I’m a little under the weather",
+      "zh": "受了点风寒",
+      "sec": "Health / Body",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789862275668
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789825178720
+  "updatedAt": 1789862278140
 }
