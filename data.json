@@ -55,10 +55,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789823567029
+    },
+    "the question is moot": {
+      "en": "The question is moot",
+      "zh": "Invalid",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789823716700
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789823570095
+  "updatedAt": 1789823725208
 }
