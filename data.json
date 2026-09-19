@@ -39,10 +39,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789815694903
+    },
+    "lamo!": {
+      "en": "Lamo!",
+      "zh": "Lame",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789823418561
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789821720431
+  "updatedAt": 1789823421280
 }
