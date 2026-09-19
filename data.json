@@ -31,10 +31,18 @@
       "explain": "",
       "example": "",
       "addedAt": 1789801801002
+    },
+    "ddd": {
+      "en": "ddd",
+      "zh": "ddd",
+      "sec": "Academic / Productivity",
+      "explain": "",
+      "example": "",
+      "addedAt": 1789815694903
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1789815630966
+  "updatedAt": 1789815703233
 }
