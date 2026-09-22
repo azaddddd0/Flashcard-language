@@ -466,6 +466,15 @@
       "example": "",
       "addedAt": 1790078170064,
       "updatedAt": 1790078170064
+    },
+    "why are all holidays so front-loaded?": {
+      "en": "why are all holidays so front-loaded?",
+      "zh": "假期都挤在前半年",
+      "sec": "Academic / Productivity",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790078307585,
+      "updatedAt": 1790078307585
     }
   },
   "overrides": {
@@ -481,5 +490,5 @@
   "binned": {
     "every little bit helps": true
   },
-  "updatedAt": 1790078172028
+  "updatedAt": 1790078308928
 }
