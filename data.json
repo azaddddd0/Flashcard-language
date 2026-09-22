@@ -493,6 +493,15 @@
       "example": "",
       "addedAt": 1790078619235,
       "updatedAt": 1790078619235
+    },
+    "reverse searing is a cooking technique where you cook thick-cut meat low and slow first, then finish it with a blazing-hot sear at the end.": {
+      "en": "Reverse searing is a cooking technique where you cook thick-cut meat low and slow first, then finish it with a blazing-hot sear at the end.",
+      "zh": "reverse searing (slow cook first and end with a blazor-hot searing)",
+      "sec": "Food / Drink",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790078921012,
+      "updatedAt": 1790078921012
     }
   },
   "overrides": {
@@ -508,5 +517,5 @@
   "binned": {
     "every little bit helps": true
   },
-  "updatedAt": 1790078620014
+  "updatedAt": 1790078922738
 }
