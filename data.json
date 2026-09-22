@@ -1,140 +1,476 @@
 {
-  "customCards": {
-    "a wordaround": {
-      "en": "a wordaround",
-      "zh": "变通方法",
-      "sec": "Academic / Productivity",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789801142016
-    },
-    "you and i go way back": {
-      "en": "you and i go way back",
-      "zh": "很早就认识",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789801706773
-    },
-    "you're walking on the ice": {
-      "en": "you're walking on the ice",
-      "zh": "in danger",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789801741022
-    },
-    "griddle / grill": {
-      "en": "griddle / grill",
-      "zh": "a griddle is a flat board without holes, a grill is with grillers",
-      "sec": "Food / Drink",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789801801002
-    },
-    "ddd": {
-      "en": "ddd",
-      "zh": "ddd",
-      "sec": "Academic / Productivity",
-      "explain": "",
-      "example": "",
-      "addedAt": 1790071813938
-    },
-    "lamo!": {
-      "en": "Lamo!",
-      "zh": "Lame",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789823418561
-    },
-    "ring it up": {
-      "en": "Ring it up",
-      "zh": "Add the order",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789823567029
-    },
-    "the question is moot": {
-      "en": "The question is moot",
-      "zh": "Invalid",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789823716700
-    },
-    "the problem at hand": {
-      "en": "The problem at hand",
-      "zh": "Status quo problem",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789823742129
-    },
-    "poke bowl": {
-      "en": "Poke bowl",
-      "zh": "Meat over rice and veggies",
-      "sec": "Food / Drink",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789824147070
-    },
-    "dynamite lady": {
-      "en": "Dynamite lady",
-      "zh": "Hot lady",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789824494372
-    },
-    "strap on a pair": {
-      "en": "Strap on a pair",
-      "zh": "Grow some balls",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789824687571
-    },
-    "have a soft spot for underdogs": {
-      "en": "Have a soft spot for underdogs",
-      "zh": "心软",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789825176675
-    },
-    "i’m a little under the weather": {
-      "en": "I’m a little under the weather",
-      "zh": "受了点风寒",
-      "sec": "Health / Body",
-      "explain": "",
-      "example": "",
-      "addedAt": 1789862275668
-    },
-    "ddd111": {
-      "en": "ddd111",
-      "zh": "ddd",
-      "sec": "Academic / Productivity",
-      "explain": "",
-      "example": "",
-      "addedAt": 1790072865860,
-      "updatedAt": 1790072865860
-    },
-    "aaa": {
-      "en": "aaa",
-      "zh": "aaa",
-      "sec": "Adripedia",
-      "explain": "",
-      "example": "",
-      "addedAt": 1790072905091,
-      "updatedAt": 1790072905091
-    }
-  },
-  "overrides": {},
-  "stars": {},
-  "binned": {
-    "every little bit helps": true
-  },
-  "updatedAt": 1790073288960
+   "stars" : {},
+   "updatedAt" : 1790073345000,
+   "binned" : {
+      "every little bit helps" : true
+   },
+   "customCards" : {
+      "well, now that you pointed out, i started to feel…" : {
+         "example" : "",
+         "addedAt" : 1789884339977,
+         "explain" : "",
+         "en" : "Well, now that you pointed out, I started to feel…",
+         "zh" : "既然你指出来了，我也觉得有点…",
+         "sec" : "Adripedia"
+      },
+      "don’t you feel bad sponging off your friends?" : {
+         "sec" : "Adripedia",
+         "example" : "",
+         "addedAt" : 1789884618168,
+         "en" : "Don’t you feel bad sponging off your friends?",
+         "explain" : "",
+         "zh" : "啃老/白嫖你的朋友"
+      },
+      "i’m a little under the weather" : {
+         "sec" : "Health / Body",
+         "explain" : "",
+         "zh" : "受了点风寒",
+         "en" : "I’m a little under the weather",
+         "example" : "",
+         "addedAt" : 1789862275668
+      },
+      "you don’t want me on the wrong side" : {
+         "explain" : "",
+         "zh" : "You don’t want to fuck with me",
+         "en" : "You don’t want me on the wrong side",
+         "example" : "",
+         "addedAt" : 1789869160105,
+         "sec" : "Adripedia"
+      },
+      "a wordaround" : {
+         "sec" : "Academic / Productivity",
+         "addedAt" : 1789801142016,
+         "example" : "",
+         "zh" : "变通方法",
+         "explain" : "",
+         "en" : "a wordaround"
+      },
+      "you turned my friends against me" : {
+         "sec" : "Adripedia",
+         "en" : "You turned my friends against me",
+         "explain" : "",
+         "zh" : "策反",
+         "addedAt" : 1789869258136,
+         "example" : ""
+      },
+      "munchies" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "en" : "Munchies",
+         "zh" : "小零食",
+         "example" : "",
+         "addedAt" : 1789884863406
+      },
+      "(how are you?) honestly, i’ve been better = i’ve had better days" : {
+         "addedAt" : 1789869324790,
+         "example" : "",
+         "en" : "(How are you?) honestly, I’ve been better = I’ve had better days",
+         "explain" : "",
+         "zh" : "I’m not well",
+         "sec" : "Adripedia"
+      },
+      "the problem at hand" : {
+         "explain" : "",
+         "zh" : "Status quo problem",
+         "en" : "The problem at hand",
+         "example" : "",
+         "addedAt" : 1789823742129,
+         "sec" : "Adripedia"
+      },
+      "get caught in the crossfire" : {
+         "explain" : "",
+         "en" : "Get caught in the crossfire",
+         "zh" : "被无辜波及 扫到台风尾",
+         "addedAt" : 1789989469953,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "whittle down something" : {
+         "explain" : "",
+         "en" : "Whittle down something",
+         "zh" : "Narrow the scope",
+         "example" : "",
+         "addedAt" : 1789975180880,
+         "sec" : "Adripedia"
+      },
+      "my life is a wreck!" : {
+         "sec" : "Adripedia",
+         "en" : "My life is a wreck!",
+         "explain" : "",
+         "zh" : "Sooo bad",
+         "addedAt" : 1789869241189,
+         "example" : ""
+      },
+      "lamo!" : {
+         "addedAt" : 1789823418561,
+         "example" : "",
+         "explain" : "",
+         "zh" : "Lame",
+         "en" : "Lamo!",
+         "sec" : "Adripedia"
+      },
+      "a latency time" : {
+         "sec" : "Academic / Productivity",
+         "en" : "A latency time",
+         "explain" : "",
+         "zh" : "延迟时间",
+         "addedAt" : 1790073081312,
+         "example" : ""
+      },
+      "your mileage may vary" : {
+         "example" : "",
+         "addedAt" : 1789970128682,
+         "explain" : "",
+         "en" : "Your mileage may vary",
+         "zh" : "YMMV = your situation might be different",
+         "sec" : "Adripedia"
+      },
+      "to have a brain fart" : {
+         "sec" : "Adripedia",
+         "en" : "To have a brain fart",
+         "explain" : "",
+         "zh" : "脑抽了",
+         "addedAt" : 1789985691656,
+         "example" : ""
+      },
+      "passenger seat" : {
+         "sec" : "Adripedia",
+         "addedAt" : 1789985510019,
+         "example" : "",
+         "explain" : "",
+         "en" : "Passenger seat",
+         "zh" : "副驾"
+      },
+      "good grief!" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "Oh my god",
+         "en" : "Good grief!",
+         "example" : "",
+         "addedAt" : 1789869116627
+      },
+      "to rest with a clear conscience" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "心安理得地歇着",
+         "en" : "To rest with a clear conscience",
+         "addedAt" : 1790046158229,
+         "example" : ""
+      },
+      "ring it up" : {
+         "example" : "",
+         "addedAt" : 1789823567029,
+         "explain" : "",
+         "en" : "Ring it up",
+         "zh" : "Add the order",
+         "sec" : "Adripedia"
+      },
+      "wow ok that’s one way to put it" : {
+         "addedAt" : 1789898469606,
+         "example" : "",
+         "en" : "Wow ok that’s one way to put it",
+         "explain" : "",
+         "zh" : "Slightly disagree",
+         "sec" : "Adripedia"
+      },
+      "i’m having the time of my life" : {
+         "sec" : "Adripedia",
+         "addedAt" : 1789884775100,
+         "example" : "",
+         "zh" : "享受人生中的最好时光",
+         "explain" : "",
+         "en" : "I’m having the time of my life"
+      },
+      "ddd111" : {
+         "explain" : "",
+         "example" : "",
+         "sec" : "Academic / Productivity",
+         "en" : "ddd111",
+         "updatedAt" : 1790072865860,
+         "zh" : "ddd",
+         "addedAt" : 1790072865860
+      },
+      "that’s so classic" : {
+         "sec" : "Adripedia",
+         "zh" : "典",
+         "explain" : "",
+         "en" : "That’s so classic",
+         "example" : "",
+         "addedAt" : 1789898443671
+      },
+      "euphemism" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "en" : "Euphemism",
+         "zh" : "委婉语",
+         "addedAt" : 1789995729462,
+         "example" : ""
+      },
+      "mother teresa" : {
+         "en" : "Mother Teresa",
+         "explain" : "",
+         "zh" : "善良的修女",
+         "example" : "",
+         "addedAt" : 1789995143096,
+         "sec" : "Adripedia"
+      },
+      "you're walking on the ice" : {
+         "zh" : "in danger",
+         "explain" : "",
+         "en" : "you're walking on the ice",
+         "addedAt" : 1789801741022,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "pretzel" : {
+         "sec" : "Food / Drink",
+         "explain" : "",
+         "zh" : "碱水结 🥨",
+         "en" : "Pretzel",
+         "example" : "",
+         "addedAt" : 1789987547500
+      },
+      "fine. i’ll take your words for it." : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "你说是就是吧",
+         "en" : "Fine. I’ll take your words for it.",
+         "addedAt" : 1789898424723,
+         "example" : ""
+      },
+      "as if…" : {
+         "example" : "",
+         "addedAt" : 1789898401224,
+         "explain" : "",
+         "en" : "As if…",
+         "zh" : "真的吗？！/切 说得跟真的似的",
+         "sec" : "Adripedia"
+      },
+      "dynamite lady" : {
+         "sec" : "Adripedia",
+         "example" : "",
+         "addedAt" : 1789824494372,
+         "explain" : "",
+         "zh" : "Hot lady",
+         "en" : "Dynamite lady"
+      },
+      "i feel melt inside" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "哈特软软",
+         "en" : "I feel melt inside",
+         "addedAt" : 1789995638757,
+         "example" : ""
+      },
+      "high tension power lines/ high  voltage" : {
+         "zh" : "高压电线",
+         "explain" : "",
+         "en" : "High tension power lines/ high  voltage",
+         "addedAt" : 1789891675863,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "it is what it is" : {
+         "explain" : "",
+         "en" : "It is what it is",
+         "zh" : "确实",
+         "addedAt" : 1789898454275,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "tortilla" : {
+         "sec" : "Food / Drink",
+         "example" : "",
+         "addedAt" : 1789898663645,
+         "zh" : "墨西哥薄饼",
+         "explain" : "",
+         "en" : "Tortilla"
+      },
+      "the question is moot" : {
+         "en" : "The question is moot",
+         "explain" : "",
+         "zh" : "Invalid",
+         "addedAt" : 1789823716700,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "ddd" : {
+         "addedAt" : 1790071813938,
+         "example" : "",
+         "explain" : "",
+         "zh" : "ddd",
+         "en" : "ddd",
+         "sec" : "Academic / Productivity"
+      },
+      "have a soft spot for underdogs" : {
+         "example" : "",
+         "addedAt" : 1789825176675,
+         "zh" : "心软",
+         "explain" : "",
+         "en" : "Have a soft spot for underdogs",
+         "sec" : "Adripedia"
+      },
+      "that’s the words on the street， dude" : {
+         "sec" : "Adripedia",
+         "example" : "",
+         "addedAt" : 1789869445721,
+         "en" : "That’s the words on the street， dude",
+         "explain" : "",
+         "zh" : "坊间流传"
+      },
+      "poke bowl" : {
+         "addedAt" : 1789824147070,
+         "example" : "",
+         "explain" : "",
+         "zh" : "Meat over rice and veggies",
+         "en" : "Poke bowl",
+         "sec" : "Food / Drink"
+      },
+      "i thought that was gonna break the other way" : {
+         "explain" : "",
+         "en" : "I thought that was gonna break the other way",
+         "zh" : "我还以为自己会听到另一种答案",
+         "addedAt" : 1789869211414,
+         "example" : "",
+         "sec" : "Adripedia"
+      },
+      "instead of using oil, you got this slowly rendered beef fat so there’s not a ton of flare-ups" : {
+         "sec" : "Food / Drink",
+         "addedAt" : 1789898780367,
+         "example" : "",
+         "zh" : "致炎物质",
+         "explain" : "",
+         "en" : "Instead of using oil, you got this slowly rendered beef fat so there’s not a ton of flare-ups"
+      },
+      "be possessed by satan" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "恶魔附身",
+         "en" : "Be possessed by Satan",
+         "addedAt" : 1789884701015,
+         "example" : ""
+      },
+      "strap on a pair" : {
+         "sec" : "Adripedia",
+         "example" : "",
+         "addedAt" : 1789824687571,
+         "explain" : "",
+         "en" : "Strap on a pair",
+         "zh" : "Grow some balls"
+      },
+      "just let that sink in for a moment" : {
+         "explain" : "",
+         "zh" : "沉淀一下 吸收一下（信息）",
+         "en" : "Just let that sink in for a moment",
+         "example" : "",
+         "addedAt" : 1789880078384,
+         "sec" : "Adripedia"
+      },
+      "griddle / grill" : {
+         "sec" : "Food / Drink",
+         "addedAt" : 1789801801002,
+         "example" : "",
+         "explain" : "",
+         "zh" : "a griddle is a flat board without holes, a grill is with grillers",
+         "en" : "griddle / grill"
+      },
+      "here’s my hot take." : {
+         "sec" : "Adripedia",
+         "addedAt" : 1789954817361,
+         "example" : "",
+         "explain" : "",
+         "zh" : "暴论预警",
+         "en" : "Here’s my hot take."
+      },
+      "to defend oneself with a great show of reasons" : {
+         "explain" : "",
+         "en" : "To defend oneself with a great show of reasons",
+         "zh" : "振振有词",
+         "example" : "",
+         "addedAt" : 1789985633486,
+         "sec" : "Adripedia"
+      },
+      "it’s the least i can do (i should probs do more than that)" : {
+         "explain" : "",
+         "zh" : "Say that when someone says thanks",
+         "en" : "It’s the least I can do (I should probs do more than that)",
+         "example" : "",
+         "addedAt" : 1789868737840,
+         "sec" : "Adripedia"
+      },
+      "you and i go way back" : {
+         "example" : "",
+         "addedAt" : 1789801706773,
+         "explain" : "",
+         "zh" : "很早就认识",
+         "en" : "you and i go way back",
+         "sec" : "Adripedia"
+      },
+      "aaa" : {
+         "addedAt" : 1790072905091,
+         "updatedAt" : 1790072905091,
+         "zh" : "aaa",
+         "en" : "aaa",
+         "example" : "",
+         "explain" : "",
+         "sec" : "Adripedia"
+      },
+      "i’m going to wash up" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "洗手",
+         "en" : "I’m going to wash up",
+         "addedAt" : 1789995668313,
+         "example" : ""
+      },
+      "whisperer" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "告密者 搬弄是非者",
+         "en" : "Whisperer",
+         "example" : "",
+         "addedAt" : 1789994608109
+      },
+      "devil’s ivy" : {
+         "sec" : "Nature / Animal",
+         "addedAt" : 1789996211737,
+         "example" : "",
+         "explain" : "",
+         "zh" : "绿箩",
+         "en" : "Devil’s ivy"
+      },
+      "feel like i’m in a state of bliss" : {
+         "addedAt" : 1789898856911,
+         "example" : "",
+         "explain" : "",
+         "en" : "Feel like I’m in a state of bliss",
+         "zh" : "感觉像是飞升了",
+         "sec" : "Adripedia"
+      },
+      "wow i just thought you couldn’t get any hotter" : {
+         "sec" : "Adripedia",
+         "example" : "",
+         "addedAt" : 1789868932331,
+         "zh" : "You’re even hotter wow!",
+         "explain" : "",
+         "en" : "Wow I just thought you couldn’t get any hotter"
+      },
+      "a contingency plan" : {
+         "sec" : "Adripedia",
+         "explain" : "",
+         "zh" : "Emergency plan",
+         "en" : "A contingency plan",
+         "example" : "",
+         "addedAt" : 1789884471064
+      }
+   },
+   "overrides" : {
+      "schnitzel" : {
+         "sec" : "Food / Drink",
+         "example" : "",
+         "updatedAt" : 1790073345000,
+         "zh" : "炸肉排",
+         "explain" : ""
+      }
+   }
 }
