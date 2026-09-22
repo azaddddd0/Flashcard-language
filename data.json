@@ -111,10 +111,19 @@
       "explain": "",
       "example": "",
       "addedAt": 1789862275668
+    },
+    "ddd111": {
+      "en": "ddd111",
+      "zh": "ddd",
+      "sec": "Academic / Productivity",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790072865860,
+      "updatedAt": 1790072865860
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1790072365952
+  "updatedAt": 1790072874266
 }
