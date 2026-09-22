@@ -493,7 +493,9 @@ const gh = (function(){
 
   let pollTimer = null;
   async function pollOnce(){
-    if(!token || document.hidden || pushing) return;
+    // Pulling data.json is a public, unauthenticated read — it works with
+    // or without a token saved. Only pushing needs the token.
+    if(document.hidden || pushing) return;
     const remote = await pullRemote();
     if(mergeIn(remote)){
       store.set("customCards", customCards);
@@ -501,11 +503,11 @@ const gh = (function(){
       store.set("stars", stars);
       store.set("binned", binned);
       rebuildAll(); buildCatMenu(); start();
-      setStatus("Synced just now", "ok");
+      if(token) setStatus("Synced just now", "ok");
     }
   }
   function startPolling(){
-    if(pollTimer || !token) return;
+    if(pollTimer) return;
     pollTimer = setInterval(pollOnce, 45000);
     document.addEventListener("visibilitychange", function(){ if(!document.hidden) pollOnce(); });
   }
@@ -682,7 +684,8 @@ function updateHUD(){
   document.getElementById("fill").style.width=(n?100*Math.min(pos,n)/n:0)+"%";
   document.getElementById("stampMain").textContent = "Updated "+BUILT;
   document.getElementById("stampSub").textContent = ALL.length+" cards · "+
-    ({claude:"progress saved in Claude",local:"progress saved on this device",memory:"progress won't be saved"}[backend]);
+    ({claude:"progress saved in Claude",local:"progress saved on this device",memory:"progress won't be saved"}[backend])+
+    (gh.hasToken() ? " · synced to GitHub" : "");
   document.getElementById("chBtn").classList.toggle("on", !showChinese);
 }
 
@@ -1135,17 +1138,18 @@ function refreshDailyUI(){
   start();
 
   await gh.loadToken();
-  if(gh.hasToken()){
-    const remote = await gh.pullRemote();
-    if(gh.mergeIn(remote)){
-      store.set("customCards", customCards);
-      store.set("overrides", overrides);
-      store.set("stars", stars);
-      store.set("binned", binned);
-      rebuildAll(); buildCatMenu(); start();
-    }
-    gh.startPolling();
+  // Pulling is public/unauthenticated and runs regardless of whether a
+  // token is saved — only pushing local changes needs one.
+  const remote = await gh.pullRemote();
+  if(gh.mergeIn(remote)){
+    store.set("customCards", customCards);
+    store.set("overrides", overrides);
+    store.set("stars", stars);
+    store.set("binned", binned);
+    rebuildAll(); buildCatMenu();
   }
+  start(); // re-render so the "synced to GitHub" status reflects the loaded token
+  gh.startPolling();
 })();
 </script>
 </body>
