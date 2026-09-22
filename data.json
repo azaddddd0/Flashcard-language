@@ -475,6 +475,15 @@
       "example": "",
       "addedAt": 1790078307585,
       "updatedAt": 1790078307585
+    },
+    "in the middle of the day": {
+      "en": "in the middle of the day",
+      "zh": "noon",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790078554826,
+      "updatedAt": 1790078554826
     }
   },
   "overrides": {
@@ -490,5 +499,5 @@
   "binned": {
     "every little bit helps": true
   },
-  "updatedAt": 1790078308928
+  "updatedAt": 1790078556007
 }
