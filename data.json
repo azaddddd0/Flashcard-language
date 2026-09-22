@@ -484,6 +484,15 @@
       "example": "",
       "addedAt": 1790078554826,
       "updatedAt": 1790078554826
+    },
+    "to have some immunity": {
+      "en": "to have some immunity",
+      "zh": "有抗体了",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790078619235,
+      "updatedAt": 1790078619235
     }
   },
   "overrides": {
@@ -499,5 +508,5 @@
   "binned": {
     "every little bit helps": true
   },
-  "updatedAt": 1790078556007
+  "updatedAt": 1790078620014
 }
