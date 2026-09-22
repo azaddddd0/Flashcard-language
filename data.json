@@ -120,10 +120,19 @@
       "example": "",
       "addedAt": 1790072865860,
       "updatedAt": 1790072865860
+    },
+    "aaa": {
+      "en": "aaa",
+      "zh": "aaa",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790072905091,
+      "updatedAt": 1790072905091
     }
   },
   "overrides": {},
   "stars": {},
   "binned": {},
-  "updatedAt": 1790072874266
+  "updatedAt": 1790072913570
 }
