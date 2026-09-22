@@ -406,22 +406,35 @@ const gh = (function(){
       return await res.json();
     }catch(e){ return null; }
   }
+  function numLevel(v){ return typeof v==="number" ? v : (v ? 1 : 0); }
   function mergeIn(remote){
     if(!remote) return false;
     let changed = false;
+    // customCards/overrides: whichever side edited a given word more
+    // recently wins that word entirely, so every device converges on the
+    // exact same content instead of each just keeping whatever it saw first.
     ["customCards","overrides"].forEach(function(field){
       const dst = field==="customCards" ? customCards : overrides;
       const src = remote[field] || {};
       Object.keys(src).forEach(function(k){
-        if(!(k in dst)){ dst[k] = src[k]; changed = true; }
+        const remoteV = src[k].updatedAt || src[k].addedAt || 0;
+        const localV = dst[k] ? (dst[k].updatedAt || dst[k].addedAt || 0) : -1;
+        if(remoteV > localV){
+          dst[k] = src[k];
+          changed = true;
+        }
       });
     });
-    ["stars","binned"].forEach(function(field){
-      const dst = field==="stars" ? stars : binned;
-      const src = remote[field] || {};
-      Object.keys(src).forEach(function(k){
-        if(src[k] && !dst[k]){ dst[k] = true; changed = true; }
-      });
+    // stars: keep the higher struggle-count per word from either side.
+    const remoteStars = remote.stars || {};
+    Object.keys(remoteStars).forEach(function(k){
+      const rv = numLevel(remoteStars[k]);
+      if(rv > numLevel(stars[k])){ stars[k] = rv; changed = true; }
+    });
+    // binned: once either device marks a word as known, it stays known everywhere.
+    const remoteBinned = remote.binned || {};
+    Object.keys(remoteBinned).forEach(function(k){
+      if(remoteBinned[k] && !binned[k]){ binned[k] = true; changed = true; }
     });
     return changed;
   }
@@ -903,7 +916,7 @@ document.getElementById("saveWordBtn").addEventListener("click",function(){
   const key = en.toLowerCase().trim();
 
   if(editingKey && BASE_KEYS[editingKey]){
-    overrides[editingKey] = { zh:zh, sec:sec, explain:explain, example:example };
+    overrides[editingKey] = { zh:zh, sec:sec, explain:explain, example:example, updatedAt:Date.now() };
     store.set("overrides", overrides);
     showMsg("Updated the translation and category for \""+en+"\"","ok");
   } else {
@@ -911,11 +924,12 @@ document.getElementById("saveWordBtn").addEventListener("click",function(){
       delete customCards[editingKey];
     }
     if(BASE_KEYS[key] && !editingKey){
-      overrides[key] = { zh:zh, sec:sec, explain:explain, example:example };
+      overrides[key] = { zh:zh, sec:sec, explain:explain, example:example, updatedAt:Date.now() };
       store.set("overrides", overrides);
       showMsg("That word is already in the deck — updated its translation and category","ok");
     } else {
-      customCards[key] = { en:en, zh:zh, sec:sec, explain:explain, example:example, addedAt:Date.now() };
+      const prevAdded = (customCards[key] && editingKey===key) ? customCards[key].addedAt : null;
+      customCards[key] = { en:en, zh:zh, sec:sec, explain:explain, example:example, addedAt: prevAdded || Date.now(), updatedAt: Date.now() };
       store.set("customCards", customCards);
       showMsg("Saved \""+en+"\"","ok");
     }
@@ -928,7 +942,7 @@ document.getElementById("saveWordBtn").addEventListener("click",function(){
 
 document.getElementById("hideWordBtn").addEventListener("click",function(){
   if(!editingKey) return;
-  overrides[editingKey] = Object.assign({}, overrides[editingKey]||{}, {hidden:true});
+  overrides[editingKey] = Object.assign({}, overrides[editingKey]||{}, {hidden:true, updatedAt:Date.now()});
   store.set("overrides", overrides);
   rebuildAll(); buildCatMenu(); resetForm(); start();
   showMsg("Hidden from the deck","ok");
