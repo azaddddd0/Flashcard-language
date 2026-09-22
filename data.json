@@ -457,6 +457,15 @@
       "en": "A contingency plan",
       "example": "",
       "addedAt": 1789884471064
+    },
+    "it's much more striking in person": {
+      "en": "it's much more striking in person",
+      "zh": "现场更惊艳",
+      "sec": "Adripedia",
+      "explain": "",
+      "example": "",
+      "addedAt": 1790078170064,
+      "updatedAt": 1790078170064
     }
   },
   "overrides": {
@@ -472,5 +481,5 @@
   "binned": {
     "every little bit helps": true
   },
-  "updatedAt": 1790078129195
+  "updatedAt": 1790078172028
 }
