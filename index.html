@@ -400,6 +400,20 @@ const gh = (function(){
     return { customCards:customCards, overrides:overrides, stars:stars, binned:binned, updatedAt: Date.now() };
   }
   async function pullRemote(){
+    // raw.githubusercontent.com sits behind a CDN that can lag a bit behind
+    // the actual repo content after a push. The authenticated Contents API
+    // doesn't have that lag and has a much higher rate limit, so prefer it
+    // whenever a token is available; fall back to the raw URL (read-only
+    // devices with no token, or if the API call fails for any reason).
+    if(token){
+      try{
+        const res = await fetch(API_URL + "?t=" + Date.now(), { headers: authHeaders(), cache:"no-store" });
+        if(res.ok){
+          const j = await res.json();
+          return JSON.parse(b64decode(j.content.replace(/\n/g,"")));
+        }
+      }catch(e){ /* fall through to raw URL */ }
+    }
     try{
       const res = await fetch(RAW_URL + "?t=" + Date.now(), { cache:"no-store" });
       if(!res.ok) return null;
